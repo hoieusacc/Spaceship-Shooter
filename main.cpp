@@ -31,7 +31,7 @@ struct Player {
 };
 
 struct Node{
-    Object data;
+    Object* data;
     Node* next;
 };
 
@@ -43,7 +43,7 @@ public:
 
     void insertAtEnd(Object value){
         Node* newNode = new Node();
-        newNode->data = value;
+        newNode->data = &value;
         newNode->next = NULL;
 
         if (!head){
@@ -80,8 +80,7 @@ public:
         delete nodeToDelete;
     }
 
-    Object takeDataAtPosition(int position){
-
+    Object* takeDataAtPosition(int position){
         Node* temp = head;
         for (int i = 1; i < position && temp; ++i){
             temp = temp->next;
@@ -154,7 +153,7 @@ bool colideCheck(Object enemy, Player player){
 
     float length = std::sqrt(directionX * directionX + directionY * directionY);
 
-    return (length - 50) < 0;
+    return (length - enemy.size - player.size) < 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -163,13 +162,13 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    Player player = {400, 300, 0, 0, 25, 200, 0};
+    Player player = {400, 300, 0, 0, 10, 200, 0};
 
     LinkedList enemies;
     int numberOfEnemies = 2;
-    Object temp = {500, 400, 0, 0, 25, 0};
+    Object temp = {500, 400, 0, 0, 10, 0};
     enemies.insertAtEnd(temp);
-    Object temp1 = {800, 700, 0, 0, 25, 0};
+    Object temp1 = {800, 700, 0, 0, 10, 0};
     enemies.insertAtEnd(temp1);
 
     Uint32 lastTime = SDL_GetTicks();
@@ -244,10 +243,10 @@ int main(int argc, char* argv[]) {
 
         drawCircle(renderer, player.x, player.y, player.size);
 
-        for (int i = 1; i <= numberOfEnemies - 1; i++) {
-            Object* enemy = &(enemies.takeDataAtPosition(i));
-        
-            enemy->angle = atan2((player.y - enemy->y), (player.x - enemy->x));
+        for (int i = 1; i <= numberOfEnemies; i++) {
+            Object* enemy = enemies.takeDataAtPosition(i);
+
+            std::cout << i << " " << enemy->x << " " << enemy->y << std::endl;
         
             float velocity = 1;
         
@@ -261,7 +260,7 @@ int main(int argc, char* argv[]) {
                 quit = true;
             }
 
-            enemy = nullptr;
+            //enemy = nullptr;
         }
         
         SDL_RenderPresent(renderer);
