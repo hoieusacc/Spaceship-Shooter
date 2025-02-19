@@ -13,7 +13,6 @@
 #define FRAME_DELAY  1000 / FPS
 
 SDL_Window* window = SDL_CreateWindow("Prototype Spaceship Shooter", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 struct Object {
@@ -91,7 +90,6 @@ public:
         return temp->data;
     }
 };
-
 
 void drawLineToMouse(Player &player, SDL_Renderer* renderer, int mouseX, int mouseY){
     SDL_RenderDrawLine(renderer, player.x + player.size / 2, player.y + player.size / 2, mouseX, mouseY);
@@ -246,11 +244,8 @@ int main(int argc, char* argv[]) {
 
         drawCircle(renderer, player.x, player.y, player.size);
 
-        for (int i = 1; i <= numberOfEnemies; i++) {
+        for (int i = 1; i <= numberOfEnemies - 1; i++) {
             Object* enemy = &(enemies.takeDataAtPosition(i));
-        
-            // In ra vị trí ban đầu của từng enemy
-            std::cout << "Enemy " << i << " initial position: (" << enemy->x << ", " << enemy->y << ")" << std::endl;
         
             enemy->angle = atan2((player.y - enemy->y), (player.x - enemy->x));
         
@@ -268,7 +263,6 @@ int main(int argc, char* argv[]) {
 
             enemy = nullptr;
         }
-        
         
         SDL_RenderPresent(renderer);
 
