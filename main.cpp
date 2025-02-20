@@ -170,10 +170,9 @@ bool colideCheck(Object enemy, Player player){
 }
 
 int getRamdomNumber(int start, int end){
-    std::random_device rd;  // Seed generator
-    std::mt19937 gen(rd()); // Mersenne Twister engine
+    std::random_device rd;
+    std::mt19937 gen(rd());
     
-    // Define the distribution range
     std::uniform_int_distribution<> distr(start, end);
 
     return distr(gen);
@@ -186,11 +185,9 @@ void createEnemies(LinkedList &enemies, int &numberOfEnemies){
 }
 
 bool isEnemyOnLine(const Player& player, const Mouse& mouse, const Object& enemy) {
-    // Calculate the distance between player and mouse
     float dx = mouse.x - player.x;
     float dy = mouse.y - player.y;
     
-    // Calculate the distance from the enemy to the line formed by the player and mouse
     float distance = std::abs(dy * enemy.x - dx * enemy.y + mouse.x * player.y - mouse.y * player.x) / std::sqrt(dy * dy + dx * dx);
 
     float dX = enemy.x - player.x;
