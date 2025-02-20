@@ -12,6 +12,7 @@
 #define MIN_VELOCITY -10
 #define FPS 120
 #define FRAME_DELAY  1000 / FPS
+#define PI 3.14159
 
 SDL_Window* window = SDL_CreateWindow("Prototype Spaceship Shooter", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -73,18 +74,14 @@ public:
     }
 
     void deleteAtPosition(int position){
-        if (position < 1){
-            std::cout<<"Position should >= 1.";
-            return;
-        }
-
         Node* temp = head;
         for (int i = 1; i < position - 1 && temp; ++i){
             temp = temp->next;
         }
 
         if(!temp || !temp->next){
-            std::cout<<"List index out of range.";
+            std::cout<<"Wave Completed." << std::endl;
+            head = NULL;
             return;
         }
 
@@ -193,7 +190,6 @@ bool isEnemyOnLine(const Player& player, const Mouse& mouse, const Object& enemy
     float dX = enemy.x - player.x;
     float dY = enemy.y - player.y;
     
-    // Check if the distance is within the enemy size
     if (distance <= enemy.size){
         if (dx < 0 && dy < 0){
             if (dX < 0 && dY < 0){
@@ -236,6 +232,10 @@ int main(int argc, char* argv[]) {
     Player player = {400, 300, 0, 0, 10, 200, 0, 0};
 
     Mouse mouse = {0, 0};
+    int length = 6;
+    float rad = PI / 2;
+    float omega = 0.025;
+    bool increase = true;
 
     LinkedList enemies;
     int numberOfEnemies = 0;
@@ -248,6 +248,9 @@ int main(int argc, char* argv[]) {
 
     bool quit = false;
     SDL_Event e;
+
+    SDL_ShowCursor(SDL_DISABLE);
+
     while (!quit) {
         auto frameStart = std::chrono::steady_clock::now();
         Uint32 currentTime = SDL_GetTicks();
@@ -324,7 +327,23 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+        float line = length + 8 * cos(rad) * cos(rad);
+
+        rad += omega;
+        if (rad >= 2 * PI){
+            rad = 0;
+        }
+
+        SDL_RenderDrawLine(renderer, mouseX + line, mouseY, mouseX + line - 2, mouseY);
+        SDL_RenderDrawLine(renderer, mouseX, mouseY + line, mouseX, mouseY + line - 2);
+        SDL_RenderDrawLine(renderer, mouseX - line, mouseY, mouseX - line + 2, mouseY);
+        SDL_RenderDrawLine(renderer, mouseX, mouseY - line, mouseX, mouseY - line + 2);
+
 
         drawCircle(renderer, player.x, player.y, player.size);
 
