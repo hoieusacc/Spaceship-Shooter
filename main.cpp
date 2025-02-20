@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <cmath>
 #include <chrono>
@@ -16,6 +17,34 @@
 
 SDL_Window* window = SDL_CreateWindow("Prototype Spaceship Shooter", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+void drawMenu(SDL_Renderer* renderer, TTF_Font* font, int currentOption) {
+    // Clear screen
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    // Menu items
+    const char* menuItems[] = {"Bắt đầu" ,"Cài đặt" ,"Điểm cao" ,"Thoát"};
+
+    // Colors
+    SDL_Color white = { 255, 255, 255 };
+    SDL_Color yellow = { 255, 255, 0 };
+
+    for (int i = 0; i < 4; ++i) {
+        SDL_Surface* surface = TTF_RenderUTF8_Solid(font, menuItems[i], (i == currentOption) ? yellow : white);
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        int textWidth = surface->w;
+        int textHeight = surface->h;
+        SDL_FreeSurface(surface);
+
+        SDL_Rect dstRect = { WINDOW_WIDTH / 2 - textWidth / 2, WINDOW_HEIGHT / 2 + (i - 1) * textHeight, textWidth, textHeight };
+        SDL_RenderCopy(renderer, texture, nullptr, &dstRect);
+        SDL_DestroyTexture(texture);
+    }
+
+    // Update screen
+    SDL_RenderPresent(renderer);
+}
 
 struct Object {
     float x, y;
@@ -229,156 +258,206 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    Player player = {400, 300, 0, 0, 10, 200, 0, 0};
-
-    Mouse mouse = {0, 0};
-    int length = 6;
-    float rad = PI / 2;
-    float omega = 0.025;
-    bool increase = true;
-
-    LinkedList enemies;
-    int numberOfEnemies = 0;
-    for (int i = 0; i < 4; i++){
-        createEnemies(enemies, numberOfEnemies);
+    if (TTF_Init() == -1) {
+        std::cerr << "TTF không thể khởi tạo! TTF_Error: " << TTF_GetError() << std::endl;
+        SDL_Quit();
+        return 1;
     }
+
+    // Load font
+    TTF_Font* font = TTF_OpenFont("JetBrainsMono-Regular.ttf", 40);
+    if (font == nullptr) {
+        std::cerr << "Không thể tải font! TTF_Error: " << TTF_GetError() << std::endl;
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
+
+    
 
     Uint32 lastTime = SDL_GetTicks();
     float friction = 0.990f;
-
-    bool quit = false;
+    int score = 0;
+    bool start = false;
+    bool run = true;
+    int currentOption = 0;
     SDL_Event e;
 
     SDL_ShowCursor(SDL_DISABLE);
+    while (run){
+        Player player = {400, 300, 0, 0, 10, 200, 0, 0};
+        
 
-    while (!quit) {
-        auto frameStart = std::chrono::steady_clock::now();
-        Uint32 currentTime = SDL_GetTicks();
-        float deltaTime = (currentTime - lastTime) / 1000.0f;
-        lastTime = currentTime;
-
+        Mouse mouse = {0, 0};
+        int length = 6;
+        float rad = PI / 2;
+        float omega = 0.025;
+        bool increase = true;
+        
+        LinkedList enemies;
+        int numberOfEnemies = 0;
+        for (int i = 0; i < 4; i++){
+            createEnemies(enemies, numberOfEnemies);
+        }
         while (SDL_PollEvent(&e) != 0) {
-            if (e.type == SDL_QUIT) {
-                quit = true;
-            }
-            if (e.type == SDL_KEYDOWN){
-                player.moving = true;
-                switch (e.key.keysym.sym){
-                    case SDLK_a:
-                        player.vx = 0;
-                        player.vx -= player.a * deltaTime;
-                        if (player.vx < MIN_VELOCITY){
-                            player.vx = MIN_VELOCITY;
+            if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_UP:
+                        if (currentOption > 0){
+                            currentOption--;
                         }
                         break;
-                    case SDLK_d:
-                        player.vx = 0;
-                        player.vx += player.a * deltaTime;
-                        if (player.vx > MAX_VELOCITY){
-                            player.vx = MAX_VELOCITY;
+                    case SDLK_DOWN:
+                        if (currentOption < 3){
+                            currentOption++;
                         }
                         break;
-                    case SDLK_w:
-                        player.vy = 0;
-                        player.vy -= player.a * deltaTime;
-                        if (player.vy < MIN_VELOCITY){
-                            player.vy = MIN_VELOCITY;
+                    case SDLK_RIGHT:
+                        if (currentOption == 0){
+                            std::cout << "Bat dau tro choi!" << std::endl;
+                            score = 0;
+                            start = true;
+                            run = false;
                         }
+                        else if (currentOption == 1) std::cout << "Cai dat tro choi!" << std::endl;
+                        else if (currentOption == 2) std::cout << "Diem cao: " << score << std::endl;
+                        else run = false;
                         break;
-                    case SDLK_s:
-                        player.vy = 0;
-                        player.vy += player.a * deltaTime;
-                        if (player.vy > MAX_VELOCITY){
-                            player.vy = MAX_VELOCITY;
-                        }
+                    default:
                         break;
-                    case SDLK_f:
-                        createEnemies(enemies, numberOfEnemies);
-                        break;
-                    case SDLK_ESCAPE:
-                        quit = true;
-                        break;
-                }
-            }
-            if (e.type == SDL_KEYUP){
-                player.moving = false;
-            }
-            if (e.type == SDL_MOUSEBUTTONDOWN) {
-                if (e.button.button == SDL_BUTTON_LEFT) {
-                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                    drawLineToMouse(player, renderer, e.button.x, e.button.y);
-                    mouse.x = e.button.x;
-                    mouse.y = e.button.y;
-                    player.fire = true;
-
-                }
-                else if (e.button.button == SDL_BUTTON_RIGHT) {
-                    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-                    drawLineToMouse(player, renderer, e.button.x, e.button.y);
-                    mouse.x = e.button.x;
-                    mouse.y = e.button.y;
-                    player.fire = true;
                 }
             }
         }
+        while (start) {
+            auto frameStart = std::chrono::steady_clock::now();
+            Uint32 currentTime = SDL_GetTicks();
+            float deltaTime = (currentTime - lastTime) / 1000.0f;
+            lastTime = currentTime;
 
-        updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction);
+            while (SDL_PollEvent(&e) != 0) {
+                if (e.type == SDL_KEYDOWN){
+                    player.moving = true;
+                    switch (e.key.keysym.sym){
+                        case SDLK_a:
+                            player.vx = 0;
+                            player.vx -= player.a * deltaTime;
+                            if (player.vx < MIN_VELOCITY){
+                                player.vx = MIN_VELOCITY;
+                            }
+                            break;
+                        case SDLK_d:
+                            player.vx = 0;
+                            player.vx += player.a * deltaTime;
+                            if (player.vx > MAX_VELOCITY){
+                                player.vx = MAX_VELOCITY;
+                            }
+                            break;
+                        case SDLK_w:
+                            player.vy = 0;
+                            player.vy -= player.a * deltaTime;
+                            if (player.vy < MIN_VELOCITY){
+                                player.vy = MIN_VELOCITY;
+                            }
+                            break;
+                        case SDLK_s:
+                            player.vy = 0;
+                            player.vy += player.a * deltaTime;
+                            if (player.vy > MAX_VELOCITY){
+                                player.vy = MAX_VELOCITY;
+                            }
+                            break;
+                        case SDLK_f:
+                            createEnemies(enemies, numberOfEnemies);
+                            break;
+                        case SDLK_ESCAPE:
+                            start = false;
+                            run = true;
+                            break;
+                    }
+                }
+                if (e.type == SDL_KEYUP){
+                    player.moving = false;
+                }
+                if (e.type == SDL_MOUSEBUTTONDOWN) {
+                    if (e.button.button == SDL_BUTTON_LEFT) {
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                        drawLineToMouse(player, renderer, e.button.x, e.button.y);
+                        mouse.x = e.button.x;
+                        mouse.y = e.button.y;
+                        player.fire = true;
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
+                    }
+                    else if (e.button.button == SDL_BUTTON_RIGHT) {
+                        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+                        drawLineToMouse(player, renderer, e.button.x, e.button.y);
+                        mouse.x = e.button.x;
+                        mouse.y = e.button.y;
+                        player.fire = true;
+                    }
+                }
+            }
 
-        int mouseX, mouseY;
-        SDL_GetMouseState(&mouseX, &mouseY);
-        
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction);
 
-        float line = length + 8 * cos(rad) * cos(rad);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderClear(renderer);
 
-        rad += omega;
-        if (rad >= 2 * PI){
-            rad = 0;
-        }
+            int mouseX, mouseY;
+            SDL_GetMouseState(&mouseX, &mouseY);
 
-        SDL_RenderDrawLine(renderer, mouseX + line, mouseY, mouseX + line - 2, mouseY);
-        SDL_RenderDrawLine(renderer, mouseX, mouseY + line, mouseX, mouseY + line - 2);
-        SDL_RenderDrawLine(renderer, mouseX - line, mouseY, mouseX - line + 2, mouseY);
-        SDL_RenderDrawLine(renderer, mouseX, mouseY - line, mouseX, mouseY - line + 2);
-
-
-        drawCircle(renderer, player.x, player.y, player.size);
-
-        for (int i = 1; i <= numberOfEnemies; i++) {
-            Object* enemy = enemies.takeDataAtPosition(i);
-        
-            float velocity = 1;
-        
-            moveEnemyTowardsPlayer(*enemy, player, velocity);
-        
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            drawCircle(renderer, enemy->x, enemy->y, enemy->size);
-        
-            if (colideCheck(*enemy, player)) {
-                std::cout << "Game over" << std::endl;
-                quit = true;
-            }
 
-            if (player.fire && isEnemyOnLine(player, mouse, *enemy)){
-                enemies.deleteAtPosition(i);
-                numberOfEnemies--;
+            float line = length + 8 * cos(rad) * cos(rad);
+            rad += omega;
+            if (rad >= 2 * PI){
+                rad = 0;
+            }
+            SDL_RenderDrawLine(renderer, mouseX + line, mouseY, mouseX + line - 2, mouseY);
+            SDL_RenderDrawLine(renderer, mouseX, mouseY + line, mouseX, mouseY + line - 2);
+            SDL_RenderDrawLine(renderer, mouseX - line, mouseY, mouseX - line + 2, mouseY);
+            SDL_RenderDrawLine(renderer, mouseX, mouseY - line, mouseX, mouseY - line + 2);
+
+            drawCircle(renderer, player.x, player.y, player.size);
+
+            for (int i = 1; i <= numberOfEnemies; i++) {
+                Object* enemy = enemies.takeDataAtPosition(i);
+            
+                float velocity = 1;
+            
+                moveEnemyTowardsPlayer(*enemy, player, velocity);
+            
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                drawCircle(renderer, enemy->x, enemy->y, enemy->size);
+            
+                if (colideCheck(*enemy, player)) {
+                    std::cout << "Game over" << std::endl;
+                    start = false;
+                    run = true;
+                }
+
+                if (player.fire && isEnemyOnLine(player, mouse, *enemy)){
+                    score += 10;
+                    enemies.deleteAtPosition(i);
+                    numberOfEnemies--;
+                }
+            }
+        
+            player.fire = false;
+            SDL_RenderPresent(renderer);
+
+            auto frameEnd = std::chrono::steady_clock::now();
+            std::chrono::duration<float, std::milli> elapsed = frameEnd - frameStart;
+            if (elapsed.count() < FRAME_DELAY) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(FRAME_DELAY) - elapsed);
             }
         }
         
-        player.fire = false;
-        SDL_RenderPresent(renderer);
-
-        auto frameEnd = std::chrono::steady_clock::now();
-        std::chrono::duration<float, std::milli> elapsed = frameEnd - frameStart;
-        if (elapsed.count() < FRAME_DELAY) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(FRAME_DELAY) - elapsed);
-        }
-
+        drawMenu(renderer, font, currentOption);
     }
 
+    TTF_CloseFont(font);
+    TTF_Quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
