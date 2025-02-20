@@ -19,14 +19,11 @@ SDL_Window* window = SDL_CreateWindow("Prototype Spaceship Shooter", SDL_WINDOWP
 SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 void drawMenu(SDL_Renderer* renderer, TTF_Font* font, int currentOption) {
-    // Clear screen
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    // Menu items
     const char* menuItems[] = {"Bắt đầu" ,"Cài đặt" ,"Điểm cao" ,"Thoát"};
 
-    // Colors
     SDL_Color white = { 255, 255, 255 };
     SDL_Color yellow = { 255, 255, 0 };
 
@@ -42,29 +39,20 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, int currentOption) {
         SDL_DestroyTexture(texture);
     }
 
-    // Update screen
     SDL_RenderPresent(renderer);
 }
 
 struct Object {
-    float x, y;
-    float vx, vy;
-    float size;
-    float angle;
+    float x, y, vx, vy, size, angle;
 };
 
 struct Player {
-    float x, y;
-    float vx, vy;
-    float size;
-    float a;
-    bool moving;
-    bool fire;
+    float x, y, vx, vy, size, a;
+    bool moving, fire;
 };
 
 struct Mouse{
-    float x;
-    float y;
+    float x, y;
 };
 
 struct Node{
@@ -106,12 +94,6 @@ public:
         Node* temp = head;
         for (int i = 1; i < position - 1 && temp; ++i){
             temp = temp->next;
-        }
-
-        if(!temp || !temp->next){
-            std::cout<<"Wave Completed." << std::endl;
-            head = NULL;
-            return;
         }
 
         Node* nodeToDelete = temp->next;
@@ -264,7 +246,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Load font
     TTF_Font* font = TTF_OpenFont("JetBrainsMono-Regular.ttf", 40);
     if (font == nullptr) {
         std::cerr << "Không thể tải font! TTF_Error: " << TTF_GetError() << std::endl;
@@ -288,7 +269,6 @@ int main(int argc, char* argv[]) {
     while (run){
         Player player = {400, 300, 0, 0, 10, 200, 0, 0};
         
-
         Mouse mouse = {0, 0};
         int length = 6;
         float rad = PI / 2;
@@ -296,7 +276,9 @@ int main(int argc, char* argv[]) {
         bool increase = true;
         
         LinkedList enemies;
-        int numberOfEnemies = 0;
+        int numberOfEnemies = 1;
+        Object* temp = new Object{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 10, 0};
+        enemies.insertAtEnd(temp);
         for (int i = 0; i < 4; i++){
             createEnemies(enemies, numberOfEnemies);
         }
@@ -420,7 +402,7 @@ int main(int argc, char* argv[]) {
 
             drawCircle(renderer, player.x, player.y, player.size);
 
-            for (int i = 1; i <= numberOfEnemies; i++) {
+            for (int i = 2; i <= numberOfEnemies; i++) {
                 Object* enemy = enemies.takeDataAtPosition(i);
             
                 float velocity = 1;
@@ -440,6 +422,9 @@ int main(int argc, char* argv[]) {
                     score += 10;
                     enemies.deleteAtPosition(i);
                     numberOfEnemies--;
+                    if (numberOfEnemies == 1){
+                        std::cout << "Wave Completed!" << std::endl;
+                    }
                 }
             }
         
