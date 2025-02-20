@@ -4,6 +4,7 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <random>
 
 #define WINDOW_WIDTH 1080
 #define WINDOW_HEIGHT 720
@@ -28,6 +29,12 @@ struct Player {
     float size;
     float a;
     bool moving;
+    bool fire;
+};
+
+struct Mouse{
+    float x;
+    float y;
 };
 
 struct Node{
@@ -35,28 +42,34 @@ struct Node{
     Node* next;
 };
 
-class LinkedList{
+class LinkedList {
     Node* head;
 
 public:
-    LinkedList() : head(NULL) {}
+    LinkedList() : head(nullptr) {}
 
-    void insertAtEnd(Object value){
-        Node* newNode = new Node();
-        newNode->data = &value;
-        newNode->next = NULL;
+    ~LinkedList() {
+        Node* current = head;
+        while (current != nullptr) {
+            Node* nextNode = current->next;
+            delete current->data;
+            delete current;
+            current = nextNode;
+        }
+    }
 
-        if (!head){
+    void insertAtEnd(Object* value) {
+        Node* newNode = new Node{value};
+
+        if (head == nullptr) {
             head = newNode;
-            return;
+        } else {
+            Node* temp = head;
+            while (temp->next != nullptr) {
+                temp = temp->next;
+            }
+            temp->next = newNode;
         }
-
-        Node* temp = head;
-        while (temp->next){
-            temp = temp->next;
-        }
-
-        temp->next = newNode;
     }
 
     void deleteAtPosition(int position){
@@ -156,20 +169,82 @@ bool colideCheck(Object enemy, Player player){
     return (length - enemy.size - player.size) < 0;
 }
 
+int getRamdomNumber(int start, int end){
+    std::random_device rd;  // Seed generator
+    std::mt19937 gen(rd()); // Mersenne Twister engine
+    
+    // Define the distribution range
+    std::uniform_int_distribution<> distr(start, end);
+
+    return distr(gen);
+}
+
+void createEnemies(LinkedList &enemies, int &numberOfEnemies){
+    Object* temp = new Object{getRamdomNumber(0, WINDOW_WIDTH), getRamdomNumber(0, WINDOW_HEIGHT), 0, 0, 10, 0};
+    enemies.insertAtEnd(temp);
+    numberOfEnemies++;
+}
+
+bool isEnemyOnLine(const Player& player, const Mouse& mouse, const Object& enemy) {
+    // Calculate the distance between player and mouse
+    float dx = mouse.x - player.x;
+    float dy = mouse.y - player.y;
+    
+    // Calculate the distance from the enemy to the line formed by the player and mouse
+    float distance = std::abs(dy * enemy.x - dx * enemy.y + mouse.x * player.y - mouse.y * player.x) / std::sqrt(dy * dy + dx * dx);
+
+    float dX = enemy.x - player.x;
+    float dY = enemy.y - player.y;
+    
+    // Check if the distance is within the enemy size
+    if (distance <= enemy.size){
+        if (dx < 0 && dy < 0){
+            if (dX < 0 && dY < 0){
+                if ((dx < dX) && (dy < dY)){
+                    return true;
+                }
+            }
+        }
+        if (dx > 0 && dy < 0){
+            if (dX > 0 && dY < 0){
+                if ((dx > dX) && (dy < dY)){
+                    return true;
+                }
+            }
+        }
+        if (dx > 0 && dy > 0){
+            if (dX > 0 && dY > 0){
+                if ((dx > dX) && (dy > dY)){
+                    return true;
+                }
+            }
+        }
+        if (dx < 0 && dy > 0){
+            if (dX < 0 && dY > 0){
+                if ((dx < dX) && (dy > dY)){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return -1;
     }
 
-    Player player = {400, 300, 0, 0, 10, 200, 0};
+    Player player = {400, 300, 0, 0, 10, 200, 0, 0};
+
+    Mouse mouse = {0, 0};
 
     LinkedList enemies;
-    int numberOfEnemies = 2;
-    Object temp = {500, 400, 0, 0, 10, 0};
-    enemies.insertAtEnd(temp);
-    Object temp1 = {800, 700, 0, 0, 10, 0};
-    enemies.insertAtEnd(temp1);
+    int numberOfEnemies = 0;
+    for (int i = 0; i < 4; i++){
+        createEnemies(enemies, numberOfEnemies);
+    }
 
     Uint32 lastTime = SDL_GetTicks();
     float friction = 0.990f;
@@ -216,6 +291,13 @@ int main(int argc, char* argv[]) {
                         if (player.vy > MAX_VELOCITY){
                             player.vy = MAX_VELOCITY;
                         }
+                        break;
+                    case SDLK_f:
+                        createEnemies(enemies, numberOfEnemies);
+                        break;
+                    case SDLK_ESCAPE:
+                        quit = true;
+                        break;
                 }
             }
             if (e.type == SDL_KEYUP){
@@ -225,11 +307,17 @@ int main(int argc, char* argv[]) {
                 if (e.button.button == SDL_BUTTON_LEFT) {
                     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                     drawLineToMouse(player, renderer, e.button.x, e.button.y);
+                    mouse.x = e.button.x;
+                    mouse.y = e.button.y;
+                    player.fire = true;
 
                 }
                 else if (e.button.button == SDL_BUTTON_RIGHT) {
                     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
                     drawLineToMouse(player, renderer, e.button.x, e.button.y);
+                    mouse.x = e.button.x;
+                    mouse.y = e.button.y;
+                    player.fire = true;
                 }
             }
         }
@@ -245,8 +333,6 @@ int main(int argc, char* argv[]) {
 
         for (int i = 1; i <= numberOfEnemies; i++) {
             Object* enemy = enemies.takeDataAtPosition(i);
-
-            std::cout << i << " " << enemy->x << " " << enemy->y << std::endl;
         
             float velocity = 1;
         
@@ -260,9 +346,13 @@ int main(int argc, char* argv[]) {
                 quit = true;
             }
 
-            //enemy = nullptr;
+            if (player.fire && isEnemyOnLine(player, mouse, *enemy)){
+                enemies.deleteAtPosition(i);
+                numberOfEnemies--;
+            }
         }
         
+        player.fire = false;
         SDL_RenderPresent(renderer);
 
         auto frameEnd = std::chrono::steady_clock::now();
@@ -270,6 +360,7 @@ int main(int argc, char* argv[]) {
         if (elapsed.count() < FRAME_DELAY) {
             std::this_thread::sleep_for(std::chrono::milliseconds(FRAME_DELAY) - elapsed);
         }
+
     }
 
     SDL_DestroyRenderer(renderer);
