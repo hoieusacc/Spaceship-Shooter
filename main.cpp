@@ -327,7 +327,7 @@ int main(int argc, char* argv[]) {
         int length = 6;
         SDL_GetMouseState(&tempx, &tempy);
         Mouse mouse = {tempx, tempy, 0, 0, 0, length + 8};
-        float crossFireFriction = 0.970f;
+        float crossFireFriction = 0.90f;
         float rad = PI / 2;
         float omega = 0.025;
         bool increase = true;
@@ -380,7 +380,6 @@ int main(int argc, char* argv[]) {
 
             while (SDL_PollEvent(&e) != 0) {
                 if (e.type == SDL_KEYDOWN){
-                    player.moving = true;
                     switch (e.key.keysym.sym){
                         case SDLK_a:
                             player.vx = 0;
@@ -388,6 +387,7 @@ int main(int argc, char* argv[]) {
                             if (player.vx < MIN_VELOCITY){
                                 player.vx = MIN_VELOCITY;
                             }
+                            player.moving = true;
                             break;
                         case SDLK_d:
                             player.vx = 0;
@@ -395,6 +395,7 @@ int main(int argc, char* argv[]) {
                             if (player.vx > MAX_VELOCITY){
                                 player.vx = MAX_VELOCITY;
                             }
+                            player.moving = true;
                             break;
                         case SDLK_w:
                             player.vy = 0;
@@ -402,6 +403,7 @@ int main(int argc, char* argv[]) {
                             if (player.vy < MIN_VELOCITY){
                                 player.vy = MIN_VELOCITY;
                             }
+                            player.moving = true;
                             break;
                         case SDLK_s:
                             player.vy = 0;
@@ -409,37 +411,42 @@ int main(int argc, char* argv[]) {
                             if (player.vy > MAX_VELOCITY){
                                 player.vy = MAX_VELOCITY;
                             }
+                            player.moving = true;
                             break;
                         case SDLK_f:
                             createEnemies(enemies, numberOfEnemies);
                             break;
                         case SDLK_UP:
                             mouse.vy = 0;
-                            mouse.vy -= player.a * deltaTime;
+                            mouse.vy -= 1.5 * player.a * deltaTime;
                             if (mouse.vy < MIN_VELOCITY){
                                 mouse.vy = MIN_VELOCITY;
                             }
+                            mouse.moving = true;
                             break;
                         case SDLK_DOWN:
                             mouse.vy = 0;
-                            mouse.vy += player.a * deltaTime;
+                            mouse.vy += 1.5 * player.a * deltaTime;
                             if (mouse.vy > MAX_VELOCITY){
                                 mouse.vy = MAX_VELOCITY;
                             }
+                            mouse.moving = true;
                             break;
                         case SDLK_RIGHT:
                             mouse.vx = 0;
-                            mouse.vx += player.a * deltaTime;
+                            mouse.vx += 1.5 * player.a * deltaTime;
                             if (mouse.vx > MAX_VELOCITY){
                                 mouse.vx = MAX_VELOCITY;
                             }
+                            mouse.moving = true;
                             break;
                         case SDLK_LEFT:
                             mouse.vx = 0;
-                            mouse.vx -= player.a * deltaTime;
+                            mouse.vx -= 1.5 * player.a * deltaTime;
                             if (mouse.vx < MIN_VELOCITY){
                                 mouse.vx = MIN_VELOCITY;
                             }
+                            mouse.moving = true;
                             break;
                         case SDLK_q:
                             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -452,11 +459,16 @@ int main(int argc, char* argv[]) {
                             break;
                     }
                 }
-                if (e.type == SDL_KEYUP && e.key.keysym.sym != SDLK_q){
-                    player.moving = false;
+                if (e.type == SDL_KEYUP){
+                    auto key = e.key.keysym.sym;
+                    if (key == SDLK_a || key == SDLK_w || key == SDLK_d || key == SDLK_s){
+                        player.moving = false;
+                    }
+                    if (key == SDLK_UP || key == SDLK_DOWN || key == SDLK_RIGHT || key == SDLK_LEFT){
+                        mouse.moving = false;
+                    }
                 }
             }
-
             
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
