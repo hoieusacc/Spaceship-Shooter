@@ -6,6 +6,7 @@
 #include <thread>
 #include <iostream>
 #include <random>
+#include <string>
 
 #define WINDOW_WIDTH 1080
 #define WINDOW_HEIGHT 720
@@ -63,6 +64,22 @@ void drawSetting(SDL_Renderer* renderer, TTF_Font* font, int currentOption) {
         SDL_DestroyTexture(texture);
     }
 
+    SDL_RenderPresent(renderer);
+}
+
+void drawScore(SDL_Renderer* renderer, TTF_Font* font, int score){
+    std::string scoreText = "Score: " + std::to_string(score);
+    SDL_Color white = { 255, 255, 255 };
+    SDL_Color yellow = { 255, 255, 0 };
+    SDL_Surface* surface = TTF_RenderUTF8_Solid(font, scoreText.c_str(), white);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    int textWidth = surface->w;
+    int textHeight = surface->h;
+    SDL_FreeSurface(surface);
+
+    SDL_Rect dstRect = {textWidth / 4 , textHeight, textWidth, textHeight };
+    SDL_RenderCopy(renderer, texture, nullptr, &dstRect);
+    SDL_DestroyTexture(texture);
     SDL_RenderPresent(renderer);
 }
 
@@ -153,7 +170,7 @@ void drawCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius) {
     }
 }
 
-void drawCrosshair(Mouse &mouse, SDL_Renderer* renderer, int length, float rad, float omega){
+void drawCrosshair(Mouse &mouse, SDL_Renderer* renderer, int length, float &rad, float omega){
     float line = length + 8 * cos(rad) * cos(rad);
             rad += omega;
             if (rad >= 2 * PI){
@@ -311,7 +328,7 @@ int main(int argc, char* argv[]) {
 
     Uint32 lastTime = SDL_GetTicks();
     float friction = 0.95f;
-    int score = 0;
+    int highScore = 0;
     bool startGame = false;
     bool startSetting = false;
     bool run = true;
@@ -331,6 +348,8 @@ int main(int argc, char* argv[]) {
         float rad = PI / 2;
         float omega = 0.025;
         bool increase = true;
+        int score = 0;
+
         
         LinkedList enemies;
         int numberOfEnemies = 1;
@@ -355,7 +374,6 @@ int main(int argc, char* argv[]) {
                     case SDLK_RIGHT:
                         if (menuOption == 0){
                             std::cout << "Bat dau tro choi!" << std::endl;
-                            score = 0;
                             startGame = true;
                             run = false;
                         }
@@ -364,7 +382,7 @@ int main(int argc, char* argv[]) {
                             startSetting = true;
                             run = false;
                         }
-                        else if (menuOption == 2) std::cout << "Diem cao: " << score << std::endl;
+                        else if (menuOption == 2) std::cout << "Diem cao: " << highScore << std::endl;
                         else run = false;
                         break;
                     default:
@@ -478,7 +496,8 @@ int main(int argc, char* argv[]) {
             drawCircle(renderer, player.x, player.y, player.size);
             updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
             drawCrosshair(mouse, renderer, length, rad, omega);
-
+            TTF_Font* font = TTF_OpenFont("JetBrainsMono-Regular.ttf", 15);
+            drawScore(renderer, font, score);
 
             for (int i = 2; i <= numberOfEnemies; i++) {
                 Object* enemy = enemies.takeDataAtPosition(i);
@@ -502,6 +521,9 @@ int main(int argc, char* argv[]) {
                     numberOfEnemies--;
                     if (numberOfEnemies == 1){
                         std::cout << "Wave Completed!" << std::endl;
+                    }
+                    if (score > highScore){
+                        highScore = score;
                     }
                 }
             }
