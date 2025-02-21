@@ -457,14 +457,14 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction);
-            drawCircle(renderer, player.x, player.y, player.size);
             
-            updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
-
+            
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction);
+            drawCircle(renderer, player.x, player.y, player.size);
+            updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
             drawCrosshair(mouse, renderer, length, rad, omega);
 
 
