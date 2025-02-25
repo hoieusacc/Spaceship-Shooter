@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
             SDL_RenderClear(renderer);
             
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            TTF_Font* font = TTF_OpenFont("JetBrainsMono-Regular.ttf", 15);
+            TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 15);
             drawScore(textRenderer, font, score);
             updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction);
             drawCircle(renderer, player.x, player.y, player.size);
@@ -251,10 +251,10 @@ int main(int argc, char* argv[]) {
                     }
                 }
             }
-            TTF_Font* font = TTF_OpenFont("JetBrainsMono-Regular.ttf", 20);
+            TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 20);
             drawSetting(renderer, font, settingOption);
         }
-        TTF_Font* font = TTF_OpenFont("JetBrainsMono-Regular.ttf", 40);
+        TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 40);
         drawMenu(renderer, font, menuOption);
     }
     SDL_DestroyRenderer(renderer);

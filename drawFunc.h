@@ -21,7 +21,7 @@ void drawMenu(SDL_Renderer* textRenderer, TTF_Font* font, int currentOption) {
         int textHeight = surface->h;
         SDL_FreeSurface(surface);
 
-        SDL_Rect dstRect = { WINDOW_WIDTH / 2 - textWidth / 2, WINDOW_HEIGHT / 2 + (i - 1) * textHeight, textWidth, textHeight };
+        SDL_Rect dstRect = { WINDOW_WIDTH / 2 - textWidth / 2, WINDOW_HEIGHT / 2 - 50 + (i - 1) * textHeight, textWidth, textHeight };
         SDL_RenderCopy(textRenderer, texture, nullptr, &dstRect);
         SDL_DestroyTexture(texture);
     }

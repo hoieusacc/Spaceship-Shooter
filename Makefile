@@ -1,8 +1,15 @@
 TARGET = main.exe
 
+CXX = g++
+CXXFLAGS = -Isrc/Include -Lsrc/lib -mwindows
+LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image
+
 all:
-	g++ -Isrc/Include -Lsrc/lib -o main main.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image
+	$(CXX) $(CXXFLAGS) -o $(TARGET) main.cpp $(LIBS)
 	$(TARGET) run
 
-run $(TARGET):
-	.\$(TARGET)
+run:
+	./$(TARGET)
+
+clean:
+	rm -f $(TARGET)

@@ -10,6 +10,7 @@
 #include <iostream>
 #include <random>
 #include <string>
+#include <windows.h>
 
 const int WINDOW_WIDTH = 1080;
 const int WINDOW_HEIGHT = 720;
