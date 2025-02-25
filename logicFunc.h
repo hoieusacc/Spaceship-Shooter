@@ -1,0 +1,138 @@
+#ifndef LOGIC_FUNCTION_H_
+#define LOGIC_FUNCTION_H_
+#include "commonVar.h"
+#include "baseObject.h"
+
+void updatePlayerPosition(Player& player, int windowWidth, int windowHeight, float friction) {
+    player.x += player.vx;
+    player.y += player.vy;
+
+    if (player.y > windowHeight + player.size) {
+        player.y = -player.size;
+    }
+    if (player.x < -player.size) {
+        player.x = windowWidth + player.size;
+    }
+    if (player.x > windowWidth + player.size) {
+        player.x = -player.size;
+    }
+    if (player.y < -player.size) {
+        player.y = windowHeight + player.size;
+    }
+
+    if (player.vx != 0 && !player.moving) {
+        player.vx *= friction;
+    }
+    if (player.vy != 0 && !player.moving) {
+        player.vy *= friction;
+    }
+}
+
+void updateMousePosition(Mouse& mouse, int windowWidth, int windowHeight, float friction) {
+    mouse.x += mouse.vx;
+    mouse.y += mouse.vy;
+
+    if (mouse.y > windowHeight - mouse.size) {
+        mouse.y = windowHeight - mouse.size;
+    }
+    if (mouse.x < mouse.size) {
+        mouse.x = mouse.size;
+    }
+    if (mouse.x > windowWidth - mouse.size) {
+        mouse.x = windowWidth - mouse.size;
+    }
+    if (mouse.y < mouse.size) {
+        mouse.y = mouse.size;
+    }
+
+    if (mouse.vx != 0 && !mouse.moving) {
+        mouse.vx *= friction;
+    }
+    if (mouse.vy != 0 && !mouse.moving) {
+        mouse.vy *= friction;
+    }
+}
+
+void moveEnemyTowardsPlayer(Object& enemy, const Player& player, float speed) {
+    float directionX = player.x - enemy.x;
+    float directionY = player.y - enemy.y;
+
+    float length = std::sqrt(directionX * directionX + directionY * directionY);
+
+    directionX /= length;
+    directionY /= length;
+
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_RenderDrawLine(renderer, enemy.x, enemy.y, enemy.x + directionX * 40, enemy.y + directionY * 40);
+
+    enemy.x += directionX * speed;
+    enemy.y += directionY * speed;
+}
+
+bool colideCheck(Object enemy, Player player){
+    float directionX = player.x - enemy.x;
+    float directionY = player.y - enemy.y;
+
+    float length = std::sqrt(directionX * directionX + directionY * directionY);
+
+    return (length - enemy.size - player.size) < 0;
+}
+
+int getRamdomNumber(int start, int end){
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    
+    std::uniform_int_distribution<> distr(start, end);
+
+    return distr(gen);
+}
+
+void createEnemies(LinkedList &enemies, int &numberOfEnemies){
+    Object* temp = new Object{getRamdomNumber(0, WINDOW_WIDTH), getRamdomNumber(0, WINDOW_HEIGHT), 0, 0, 10, 0};
+    enemies.insertAtEnd(temp);
+    numberOfEnemies++;
+}
+
+bool isEnemyOnLine(const Player& player, const Mouse& mouse, const Object& enemy) {
+    float dx = mouse.x - player.x;
+    float dy = mouse.y - player.y;
+    
+    float distance = std::abs(dy * enemy.x - dx * enemy.y + mouse.x * player.y - mouse.y * player.x) / std::sqrt(dy * dy + dx * dx);
+
+    float dX = enemy.x - player.x;
+    float dY = enemy.y - player.y;
+    
+    if (distance <= enemy.size){
+        if (dx < 0 && dy < 0){
+            if (dX < 0 && dY < 0){
+                if ((dx < dX) && (dy < dY)){
+                    return true;
+                }
+            }
+        }
+        if (dx > 0 && dy < 0){
+            if (dX > 0 && dY < 0){
+                if ((dx > dX) && (dy < dY)){
+                    return true;
+                }
+            }
+        }
+        if (dx > 0 && dy > 0){
+            if (dX > 0 && dY > 0){
+                if ((dx > dX) && (dy > dY)){
+                    return true;
+                }
+            }
+        }
+        if (dx < 0 && dy > 0){
+            if (dX < 0 && dY > 0){
+                if ((dx < dX) && (dy > dY)){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+#endif
