@@ -1,4 +1,4 @@
-#include "includeFile.h"
+#include "header/includeFile.h"
 
 bool init(){
     window = SDL_CreateWindow("Prototype Spaceship Shooter", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
