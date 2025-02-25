@@ -70,7 +70,7 @@ void drawScore(SDL_Renderer* renderer, TTF_Font* font, int score){
 }
 
 void drawLineToMouse(Player &player, SDL_Renderer* renderer, int mouseX, int mouseY){
-    SDL_RenderDrawLine(renderer, player.x + player.size / 2, player.y + player.size / 2, mouseX, mouseY);
+    SDL_RenderDrawLine(renderer, player.x , player.y , mouseX, mouseY);
     SDL_RenderPresent(renderer);
     SDL_Delay(10);
 }
