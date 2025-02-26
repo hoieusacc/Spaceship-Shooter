@@ -8,7 +8,7 @@ struct Object {
 };
 
 struct Player {
-    float x, y, vx, vy, size, a;
+    float x, y, vx, vy, size, a, angle;
     bool moving, fire;
 };
 

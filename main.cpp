@@ -21,20 +21,62 @@ bool init(){
         SDL_Quit();
         return false;
     }
-
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+        return -1;
+    }
+    
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+        return -1;
+    }
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
+        return -1;
+    }
+    
     return true;
+}
+
+void close(){
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 }
 
 int main(int argc, char* argv[]) {
     if (!init()){
         std::cerr << "Cannot initialize SDL!" << std::endl;
     }
+    Mix_Chunk* mainSong = Mix_LoadWAV("data/music/track 01/v1.0 full song.wav");
+    if (mainSong == nullptr) {
+        return -1;
+    }
+
+    Mix_PlayChannel(-1, mainSong, 0);
+
+    SDL_Surface* loadedSurface = IMG_Load("data/image/Main Ship/Main Ship - Base - Full health.png");
+    if (loadedSurface == nullptr) {
+        printf("Unable to load image! SDL_image Error: %s\n", IMG_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        return -1;
+    }
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+    SDL_FreeSurface(loadedSurface);
+    if (texture == nullptr) {
+        printf("Unable to create texture! SDL Error: %s\n", SDL_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        return -1;
+    }
 
     Uint32 lastTime = SDL_GetTicks();
     SDL_ShowCursor(SDL_DISABLE);
 
     while (run){
-        Player player = {400, 300, 0, 0, 10, 200, 0, 0};
+        Player player = {400, 300, 0, 0, 24, 200, 0, 0, 0};
         
         Mouse mouse = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 0, 0, length + 8};
         int score = 0;
@@ -61,16 +103,16 @@ int main(int argc, char* argv[]) {
                         break;
                     case SDLK_RIGHT:
                         if (menuOption == 0){
-                            std::cout << "Bat dau tro choi!" << std::endl;
+                            std::cout << "Game Start!" << std::endl;
                             startGame = true;
                             run = false;
                         }
                         else if (menuOption == 1){ 
-                            std::cout << "Cai dat tro choi!" << std::endl;
+                            std::cout << "Game Setting!" << std::endl;
                             startSetting = true;
                             run = false;
                         }
-                        else if (menuOption == 2) std::cout << "Diem cao: " << highScore << std::endl;
+                        else if (menuOption == 2) std::cout << "High Score: " << highScore << std::endl;
                         else run = false;
                         break;
                     default:
@@ -175,6 +217,8 @@ int main(int argc, char* argv[]) {
                     }
                 }
             }
+
+            getAngle(player, mouse);
             
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
@@ -183,7 +227,13 @@ int main(int argc, char* argv[]) {
             TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 15);
             drawScore(textRenderer, font, score);
             updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction);
-            drawCircle(renderer, player.x, player.y, player.size);
+
+            SDL_Rect destRect = { player.x - 20, player.y - 24, 48, 48 }; // Vị trí và kích thước của hình ảnh
+            
+            SDL_RenderCopyEx(renderer, texture, nullptr, &destRect, player.angle * 180 / PI, nullptr, SDL_FLIP_NONE);
+            SDL_RenderPresent(renderer);
+
+            //drawCircle(renderer, player.x, player.y, player.size);
             updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
             drawCrosshair(mouse, renderer, length, rad, omega);
 
@@ -257,9 +307,7 @@ int main(int argc, char* argv[]) {
         TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 40);
         drawMenu(renderer, font, menuOption);
     }
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    close();
 
     return 0;
 }

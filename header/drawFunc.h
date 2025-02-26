@@ -70,7 +70,7 @@ void drawScore(SDL_Renderer* renderer, TTF_Font* font, int score){
 }
 
 void drawLineToMouse(Player &player, SDL_Renderer* renderer, int mouseX, int mouseY){
-    SDL_RenderDrawLine(renderer, player.x , player.y , mouseX, mouseY);
+    SDL_RenderDrawLine(renderer, player.x + 3 * cos(player.angle), player.y + 3 * sin(player.angle), mouseX, mouseY);
     SDL_RenderPresent(renderer);
     SDL_Delay(10);
 }
@@ -96,5 +96,7 @@ void drawCrosshair(Mouse &mouse, SDL_Renderer* renderer, int length, float &rad,
     SDL_RenderDrawLine(renderer, mouse.x - line, mouse.y, mouse.x - line + 2, mouse.y);
     SDL_RenderDrawLine(renderer, mouse.x, mouse.y - line, mouse.x, mouse.y - line + 2);
 }
+
+
 
 #endif

@@ -135,4 +135,20 @@ bool isEnemyOnLine(const Player& player, const Mouse& mouse, const Object& enemy
     return false;
 }
 
+float getDistance(const Player player, const Mouse mouse){
+    return sqrt((mouse.x - player.x) * (mouse.x - player.x) + (mouse.y - player.y) * (mouse.y - player.y));
+}
+
+void getAngle(Player& player, Mouse& mouse){
+    double deltaX = mouse.x - player.x;
+    double deltaY = mouse.y - player.y;
+
+    double angle = atan2(deltaY, deltaX) + PI / 2;
+
+    if (angle < 0) {
+        angle += 2 * PI;
+    }
+    player.angle = angle;
+}
+
 #endif
