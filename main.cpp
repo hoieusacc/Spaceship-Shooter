@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
     }
 
     Mix_PlayChannel(-1, mainSong, 0);
-
+/*
     SDL_Surface* loadedSurface = IMG_Load("data/image/Main Ship/Main Ship - Base - Full health.png");
     if (loadedSurface == nullptr) {
         printf("Unable to load image! SDL_image Error: %s\n", IMG_GetError());
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         return -1;
-    }
+    }*/
 
     Uint32 lastTime = SDL_GetTicks();
     SDL_ShowCursor(SDL_DISABLE);
@@ -228,12 +228,10 @@ int main(int argc, char* argv[]) {
             drawScore(textRenderer, font, score);
             updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction);
 
-            SDL_Rect destRect = { player.x - 20, player.y - 24, 48, 48 }; // Vị trí và kích thước của hình ảnh
-            
-            SDL_RenderCopyEx(renderer, texture, nullptr, &destRect, player.angle * 180 / PI, nullptr, SDL_FLIP_NONE);
-            SDL_RenderPresent(renderer);
+            SDL_Rect srcRect = {0, 0, 48, 48};
+            SDL_Rect dstRect = {player.x - 20,  player.y - 24, 48, 48};
+            drawImage(renderer, "data/image/Main Ship/Main Ship - Base - Full health.png", dstRect, srcRect, player.angle * 180 / PI);
 
-            //drawCircle(renderer, player.x, player.y, player.size);
             updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
             drawCrosshair(mouse, renderer, length, rad, omega);
 
@@ -304,6 +302,9 @@ int main(int argc, char* argv[]) {
             TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 20);
             drawSetting(renderer, font, settingOption);
         }
+        SDL_SetRenderDrawColor(textRenderer, 0, 0, 0, 255);
+        SDL_RenderClear(textRenderer);
+        drawBackground();
         TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 40);
         drawMenu(renderer, font, menuOption);
     }

@@ -5,10 +5,27 @@
 #include "commonVar.h"
 #include "logicFunc.h"
 
-void drawMenu(SDL_Renderer* textRenderer, TTF_Font* font, int currentOption) {
-    SDL_SetRenderDrawColor(textRenderer, 0, 0, 0, 255);
-    SDL_RenderClear(textRenderer);
+void drawImage(SDL_Renderer* renderer, const char* path, SDL_Rect dstRect, SDL_Rect srcRect, double angle) {
+    SDL_Surface* loadedSurface = IMG_Load(path);
+    if (!loadedSurface) {
+        std::cerr << "Unable to load image! IMG_Error: " << IMG_GetError() << std::endl;
+        return;
+    }
 
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+    SDL_FreeSurface(loadedSurface);
+    if (!texture) {
+        std::cerr << "Unable to create texture! SDL_Error: " << SDL_GetError() << std::endl;
+        return;
+    }
+
+    //SDL_Rect srcRect = {src_x, src_y, src_w, src_h};
+    //SDL_Rect dstRect = {x, y, width, height};
+    SDL_RenderCopyEx(renderer, texture, &srcRect, &dstRect, angle, nullptr, SDL_FLIP_NONE);
+    SDL_DestroyTexture(texture);
+}
+
+void drawMenu(SDL_Renderer* textRenderer, TTF_Font* font, int currentOption) {
     const char* menuItems[] = {"Bắt đầu" ,"Cài đặt" ,"Điểm cao" ,"Thoát"};
 
     SDL_Color white = { 255, 255, 255 };
@@ -97,6 +114,12 @@ void drawCrosshair(Mouse &mouse, SDL_Renderer* renderer, int length, float &rad,
     SDL_RenderDrawLine(renderer, mouse.x, mouse.y - line, mouse.x, mouse.y - line + 2);
 }
 
-
+void drawBackground(){
+    SDL_Rect srcRect = {0, 0, 1080, 720};
+    SDL_Rect dstRect = {0, 0, 1080, 720};
+    drawImage(renderer, "data/image/BackGrounds/Condesed/Starry background  - Layer 01 - Void.png", dstRect, srcRect, 0);
+    drawImage(renderer, "data/image/BackGrounds/Condesed/Starry background  - Layer 02 - Stars.png", dstRect, srcRect, 0);
+    drawImage(renderer, "data/image/BackGrounds/Condesed/Starry background  - Layer 03 - Stars.png", dstRect, srcRect, 0);
+}
 
 #endif
