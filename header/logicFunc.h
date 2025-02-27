@@ -7,17 +7,17 @@ void updatePlayerPosition(Player& player, int windowWidth, int windowHeight, flo
     player.x += player.vx;
     player.y += player.vy;
 
-    if (player.y > windowHeight + player.size) {
-        player.y = -player.size;
+    if (player.y > windowHeight - player.size) {
+        player.y = windowHeight - player.size;
     }
-    if (player.x < -player.size) {
-        player.x = windowWidth + player.size;
+    if (player.x < player.size) {
+        player.x = player.size;
     }
-    if (player.x > windowWidth + player.size) {
-        player.x = -player.size;
+    if (player.x > windowWidth - player.size) {
+        player.x = windowWidth - player.size;
     }
-    if (player.y < -player.size) {
-        player.y = windowHeight + player.size;
+    if (player.y < player.size) {
+        player.y = player.size;
     }
 
     if (player.vx != 0 && !player.moving) {

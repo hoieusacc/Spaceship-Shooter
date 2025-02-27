@@ -54,23 +54,6 @@ int main(int argc, char* argv[]) {
     }
 
     Mix_PlayChannel(-1, mainSong, 0);
-/*
-    SDL_Surface* loadedSurface = IMG_Load("data/image/Main Ship/Main Ship - Base - Full health.png");
-    if (loadedSurface == nullptr) {
-        printf("Unable to load image! SDL_image Error: %s\n", IMG_GetError());
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        return -1;
-    }
-
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-    SDL_FreeSurface(loadedSurface);
-    if (texture == nullptr) {
-        printf("Unable to create texture! SDL Error: %s\n", SDL_GetError());
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        return -1;
-    }*/
 
     Uint32 lastTime = SDL_GetTicks();
     SDL_ShowCursor(SDL_DISABLE);
@@ -304,6 +287,7 @@ int main(int argc, char* argv[]) {
         }
         SDL_SetRenderDrawColor(textRenderer, 0, 0, 0, 255);
         SDL_RenderClear(textRenderer);
+        SDL_RenderClear(renderer);
         drawBackground();
         TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 40);
         drawMenu(renderer, font, menuOption);
