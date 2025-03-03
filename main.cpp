@@ -108,6 +108,7 @@ int main(int argc, char* argv[]) {
             Uint32 currentTime = SDL_GetTicks();
             float deltaTime = (currentTime - lastTime) / 1000.0f;
             lastTime = currentTime;
+            posx = (posx * player.x) / 5760;
 
             while (SDL_PollEvent(&e) != 0) {
                 if (e.type == SDL_KEYDOWN){
@@ -216,6 +217,7 @@ int main(int argc, char* argv[]) {
             drawImage(renderer, "data/image/Main Ship/Main Ship - Base - Full health.png", dstRect, srcRect, player.angle * 180 / PI);
 
             updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
+            drawScore(renderer, font, score);
             drawCrosshair(mouse, renderer, length, rad, omega);
 
             for (int i = 2; i <= numberOfEnemies; i++) {
@@ -284,13 +286,15 @@ int main(int argc, char* argv[]) {
             }
             TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 20);
             drawSetting(renderer, font, settingOption);
+            SDL_RenderPresent(renderer);
         }
-        SDL_SetRenderDrawColor(textRenderer, 0, 0, 0, 255);
-        SDL_RenderClear(textRenderer);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        drawBackground();
+        drawBackground(posx);
         TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 40);
         drawMenu(renderer, font, menuOption);
+        SDL_RenderPresent(renderer);
+
     }
     close();
 

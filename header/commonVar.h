@@ -21,6 +21,8 @@ const int BPP = 32;
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 static SDL_Renderer* textRenderer = NULL;
+static SDL_Texture* texture = NULL;
+static SDL_Surface* surface = NULL;
 SDL_Event e;
 
 const int FPS = 120;
@@ -32,6 +34,7 @@ const int COLOR_KEY_R = 167;
 const int COLOR_KEY_G = 175;
 const int COLOR_KEY_B = 180;
 
+float posx = 0;
 float friction = 0.95f;
 int highScore = 0;
 bool startGame = false;
