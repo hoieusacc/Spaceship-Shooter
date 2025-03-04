@@ -216,10 +216,10 @@ int main(int argc, char* argv[]) {
             SDL_Rect dstRect = {player.x - player.size / 2,  player.y - player.size / 2, player.size, player.size};
             
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            drawScore(renderer, score);
             drawImage(renderer, state[player.health - 1], dstRect, srcRect, player.angle * 180 / PI);
             drawCrosshair(mouse, renderer, length, rad, omega);
             drawHealthBar(WINDOW_WIDTH - 320, WINDOW_WIDTH - 20, 20, 20, player.health);
-            drawScore(textRenderer, score);
 
             for (int i = 2; i <= numberOfEnemies; i++) {
                 Object* enemy = enemies.takeDataAtPosition(i);
