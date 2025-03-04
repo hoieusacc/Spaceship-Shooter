@@ -63,7 +63,7 @@ void moveEnemyTowardsPlayer(Object& enemy, const Player& player, float speed) {
     directionY /= length;
 
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderDrawLine(renderer, enemy.x, enemy.y, enemy.x + directionX * 40, enemy.y + directionY * 40);
+    SDL_RenderDrawLine(renderer, enemy.x + 5 * cos(enemy.angle), enemy.y + 5 * sin(enemy.angle), enemy.x + directionX * 40 , enemy.y + directionY * 40);
 
     enemy.x += directionX * speed;
     enemy.y += directionY * speed;
@@ -78,17 +78,33 @@ bool colideCheck(Object enemy, Player player){
     return (length - enemy.size - player.size) < 0;
 }
 
-int getRamdomNumber(int start, int end){
+float getRandomNumber(int start, int end){
     std::random_device rd;
     std::mt19937 gen(rd());
     
     std::uniform_int_distribution<> distr(start, end);
 
-    return distr(gen);
+    return (float)distr(gen);
 }
 
-void createEnemies(LinkedList &enemies, int &numberOfEnemies){
-    Object* temp = new Object{getRamdomNumber(0, WINDOW_WIDTH), getRamdomNumber(0, WINDOW_HEIGHT), 0, 0, 10, 0};
+void createEnemies(LinkedList &enemies, int &numberOfEnemies, float size){
+    int choice = getRandomNumber(1, 4);
+    Object* temp;
+    switch (choice){
+        case 1:
+            temp = new Object{getRandomNumber(0, WINDOW_WIDTH), getRandomNumber(WINDOW_HEIGHT, WINDOW_HEIGHT + 200), 0, 0, size, 0};
+            break;
+        case 2:
+            temp = new Object{getRandomNumber(0, WINDOW_WIDTH), getRandomNumber(-200, 0), 0, 0, size, 0};
+            break;
+        case 3:
+            temp = new Object{getRandomNumber(WINDOW_WIDTH, WINDOW_WIDTH + 200), getRandomNumber(0, WINDOW_HEIGHT), 0, 0, size, 0};
+            break;
+        case 4:
+            temp = new Object{getRandomNumber(-200, 0), getRandomNumber(0, WINDOW_HEIGHT), 0, 0, size, 0};
+            break;
+        
+    }
     enemies.insertAtEnd(temp);
     numberOfEnemies++;
 }
@@ -139,7 +155,7 @@ float getDistance(const Player player, const Mouse mouse){
     return sqrt((mouse.x - player.x) * (mouse.x - player.x) + (mouse.y - player.y) * (mouse.y - player.y));
 }
 
-void getAngle(Player& player, Mouse& mouse){
+void getPlayerAngle(Player& player, Mouse& mouse){
     double deltaX = mouse.x - player.x;
     double deltaY = mouse.y - player.y;
 
@@ -149,6 +165,18 @@ void getAngle(Player& player, Mouse& mouse){
         angle += 2 * PI;
     }
     player.angle = angle;
+}
+
+void getEnemyAngle(Object& enemy, Player player){
+    double deltaX = player.x - enemy.x;
+    double deltaY = player.y - enemy.y;
+
+    double angle = atan2(deltaY, deltaX) + PI / 2;
+
+    if (angle < 0) {
+        angle += 2 * PI;
+    }
+    enemy.angle = angle;
 }
 
 #endif

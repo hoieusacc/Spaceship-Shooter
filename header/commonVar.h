@@ -25,9 +25,9 @@ static SDL_Texture* texture = NULL;
 static SDL_Surface* surface = NULL;
 SDL_Event e;
 
+const float PI = 3.14159; 
 const int FPS = 120;
 const int FRAME_DELAY = 1000 / FPS;
-const float PI = 3.14159; 
 const int MAX_VELOCITY = 7;
 const int MIN_VELOCITY = -7;
 const int COLOR_KEY_R = 167;
@@ -36,16 +36,17 @@ const int COLOR_KEY_B = 180;
 
 float posx = 0;
 float friction = 0.95f;
-int highScore = 0;
-bool startGame = false;
-bool startSetting = false;
-bool run = true;
-int menuOption = 0;
-int settingOption = 0;
+float velocity = 1;
 float crossFireFriction = 0.90f;
 float rad = PI / 2;
 float omega = 0.025;
+int highScore = 0;
+int menuOption = 0;
+int settingOption = 0;
 int length = 6;
-float velocity = 1;
+int score = 0;
+bool run = true;
+bool startGame = false;
+bool startSetting = false;
 
 #endif

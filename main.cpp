@@ -53,23 +53,21 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    Mix_PlayChannel(-1, mainSong, 0);
-
+    Mix_PlayChannel(-1, mainSong, 1);
     Uint32 lastTime = SDL_GetTicks();
     SDL_ShowCursor(SDL_DISABLE);
 
     while (run){
-        Player player = {400, 300, 0, 0, 24, 200, 0, 0, 0};
-        
+        Player player = {400, 300, 0, 0, 32, 200, 0, 0, 0};
         Mouse mouse = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 0, 0, length + 8};
-        int score = 0;
         LinkedList enemies;
-        int numberOfEnemies = 1;
-        Object* temp = new Object{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 10, 0};
+        Object* temp = new Object{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0};
         enemies.insertAtEnd(temp);
+        int numberOfEnemies = 1;
 
-        for (int i = 0; i < 4; i++){
-            createEnemies(enemies, numberOfEnemies);
+        int create = 4;
+        for (int i = 0; i < create; i++){
+            createEnemies(enemies, numberOfEnemies, temp->size);
         }
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_KEYDOWN) {
@@ -103,6 +101,7 @@ int main(int argc, char* argv[]) {
                 }
             }
         }
+        int move = 1;
         while (startGame) {
             auto frameStart = std::chrono::steady_clock::now();
             Uint32 currentTime = SDL_GetTicks();
@@ -145,9 +144,6 @@ int main(int argc, char* argv[]) {
                             }
                             player.moving = true;
                             break;
-                        case SDLK_f:
-                            createEnemies(enemies, numberOfEnemies);
-                            break;
                         case SDLK_UP:
                             mouse.vy = 0;
                             mouse.vy -= 1.5 * player.a * deltaTime;
@@ -185,6 +181,10 @@ int main(int argc, char* argv[]) {
                             drawLineToMouse(player, renderer, mouse.x, mouse.y);
                             player.fire = true;
                             break;
+                        case SDLK_f:
+                            move += 1;
+                            move %= 2;
+                            break;
                         case SDLK_ESCAPE:
                             startGame = false;
                             run = true;
@@ -202,31 +202,33 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            getAngle(player, mouse);
+            getPlayerAngle(player, mouse);
             
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
             
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 15);
-            drawScore(textRenderer, font, score);
             updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction);
 
-            SDL_Rect srcRect = {0, 0, 48, 48};
-            SDL_Rect dstRect = {player.x - 20,  player.y - 24, 48, 48};
+            SDL_Rect srcRect = {0, 0, 32, 32};
+            SDL_Rect dstRect = {player.x,  player.y, player.size, player.size};
             drawImage(renderer, "data/image/Main Ship/Main Ship - Base - Full health.png", dstRect, srcRect, player.angle * 180 / PI);
 
             updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
-            drawScore(renderer, font, score);
+            drawScore(textRenderer, font, score);
             drawCrosshair(mouse, renderer, length, rad, omega);
 
             for (int i = 2; i <= numberOfEnemies; i++) {
                 Object* enemy = enemies.takeDataAtPosition(i);
-            
-                moveEnemyTowardsPlayer(*enemy, player, velocity);
+                if (move){
+                    moveEnemyTowardsPlayer(*enemy, player, velocity);
+                }
+                getEnemyAngle(*enemy, player);
             
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                drawCircle(renderer, enemy->x, enemy->y, enemy->size);
+                SDL_Rect dstRect = {enemy->x,  enemy->y, enemy->size, enemy->size};
+                drawImage(renderer, "data/image/Enemy/Basic/Nairan - Fighter - Base.png", dstRect, srcRect, enemy->angle * 180 / PI);
             
                 if (colideCheck(*enemy, player)) {
                     std::cout << "Game over" << std::endl;
@@ -244,6 +246,12 @@ int main(int argc, char* argv[]) {
                     if (score > highScore){
                         highScore = score;
                     }
+                }
+            }
+            if (numberOfEnemies == 1){
+                create++;
+                for (int i = 0; i < create; i++){
+                    createEnemies(enemies, numberOfEnemies, temp->size);
                 }
             }
         
@@ -284,19 +292,16 @@ int main(int argc, char* argv[]) {
                     }
                 }
             }
-            TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 20);
-            drawSetting(renderer, font, settingOption);
+            drawSetting(renderer, settingOption);
+            drawBackground(posx);
             SDL_RenderPresent(renderer);
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         drawBackground(posx);
-        TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 40);
-        drawMenu(renderer, font, menuOption);
+        drawMenu(renderer, menuOption);
         SDL_RenderPresent(renderer);
-
     }
     close();
-
     return 0;
 }

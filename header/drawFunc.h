@@ -13,8 +13,9 @@ void drawImage(SDL_Renderer* renderer, const char* path, SDL_Rect dstRect, SDL_R
     SDL_RenderCopyEx(renderer, texture, &srcRect, &dstRect, angle, nullptr, SDL_FLIP_NONE);
 }
 
-void drawMenu(SDL_Renderer* textRenderer, TTF_Font* font, int currentOption) {
-    const char* menuItems[] = {"Bắt đầu" ,"Cài đặt" ,"Điểm cao" ,"Thoát"};
+void drawMenu(SDL_Renderer* textRenderer, int currentOption) {
+    TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 40);
+    const char* menuItems[] = {"Start" ,"Setting" ,"High Score" ,"Quit"};
 
     SDL_Color white = { 255, 255, 255 };
     SDL_Color yellow = { 255, 255, 0 };
@@ -31,11 +32,12 @@ void drawMenu(SDL_Renderer* textRenderer, TTF_Font* font, int currentOption) {
     }
 }
 
-void drawSetting(SDL_Renderer* textRenderer, TTF_Font* font, int currentOption) {
+void drawSetting(SDL_Renderer* textRenderer, int currentOption) {
+    TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 40);
     SDL_SetRenderDrawColor(textRenderer, 0, 0, 0, 255);
     SDL_RenderClear(textRenderer);
 
-    const char* menuItems[] = {"Cài đặt" ,"Trở về"};
+    const char* menuItems[] = {"Music" ,"Back"};
 
     SDL_Color white = { 255, 255, 255 };
     SDL_Color yellow = { 255, 255, 0 };
@@ -47,7 +49,7 @@ void drawSetting(SDL_Renderer* textRenderer, TTF_Font* font, int currentOption) 
         int textHeight = surface->h;
         SDL_FreeSurface(surface);
 
-        SDL_Rect dstRect = {0 ,(i) * (textHeight + 50), textWidth, textHeight };
+        SDL_Rect dstRect = {(WINDOW_WIDTH - textWidth) / 2 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight + 50), textWidth, textHeight };
         SDL_RenderCopy(textRenderer, texture, nullptr, &dstRect);
     }
 }
@@ -67,7 +69,7 @@ void drawScore(SDL_Renderer* renderer, TTF_Font* font, int score){
 }
 
 void drawLineToMouse(Player &player, SDL_Renderer* renderer, int mouseX, int mouseY){
-    SDL_RenderDrawLine(renderer, player.x + 3 * cos(player.angle), player.y + 3 * sin(player.angle), mouseX, mouseY);
+    SDL_RenderDrawLine(renderer, player.x , player.y , mouseX, mouseY);
     SDL_RenderPresent(renderer);
     SDL_Delay(10);
 }
