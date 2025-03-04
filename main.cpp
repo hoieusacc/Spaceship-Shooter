@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
         int score = 0;
 
         LinkedList enemies;
-        Object* temp = new Object{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0};
+        Object* temp = new Object{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 32, 0};
         enemies.insertAtEnd(temp);
         int numberOfEnemies = 1;
 
@@ -204,7 +204,6 @@ int main(int argc, char* argv[]) {
                     }
                 }
             }
-
             
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
@@ -214,7 +213,7 @@ int main(int argc, char* argv[]) {
             updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
             
             SDL_Rect srcRect = {0, 0, 32, 32};
-            SDL_Rect dstRect = {player.x - 16,  player.y - 16, player.size, player.size};
+            SDL_Rect dstRect = {player.x - player.size / 2,  player.y - player.size / 2, player.size, player.size};
             
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             drawImage(renderer, state[player.health - 1], dstRect, srcRect, player.angle * 180 / PI);
@@ -230,7 +229,7 @@ int main(int argc, char* argv[]) {
                 getEnemyAngle(*enemy, player);
             
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                SDL_Rect dstRect = {enemy->x - 16, enemy->y - 16, enemy->size, enemy->size};
+                SDL_Rect dstRect = {enemy->x - enemy->size / 2, enemy->y - enemy->size / 2, enemy->size, enemy->size};
                 drawImage(renderer, "data/image/Enemy/Basic/Nairan - Fighter - Base.png", dstRect, srcRect, enemy->angle * 180 / PI);
             
                 if (colideCheck(*enemy, player)) {

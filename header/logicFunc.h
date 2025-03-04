@@ -75,7 +75,7 @@ bool colideCheck(Object enemy, Player player){
 
     float length = std::sqrt(directionX * directionX + directionY * directionY);
 
-    return (length - enemy.size - player.size) < 0;
+    return (length - enemy.size - player.size + enemy.size / 4 + player.size / 4) < 0;
 }
 
 float getRandomNumber(int start, int end){
@@ -113,7 +113,7 @@ bool isEnemyOnLine(const Player& player, const Mouse& mouse, const Object& enemy
     float dx = mouse.x - player.x;
     float dy = mouse.y - player.y;
     
-    float distance = std::abs(dy * enemy.x - dx * enemy.y + mouse.x * player.y - mouse.y * player.x) / std::sqrt(dy * dy + dx * dx);
+    float distance = std::abs(dy * enemy.x - dx * enemy.y + mouse.x * player.y - mouse.y * player.x) / std::sqrt(dy * dy + dx * dx) + enemy.size / 3;
 
     float dX = enemy.x - player.x;
     float dY = enemy.y - player.y;
