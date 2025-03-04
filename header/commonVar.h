@@ -40,13 +40,18 @@ float velocity = 1;
 float crossFireFriction = 0.90f;
 float rad = PI / 2;
 float omega = 0.025;
-int highScore = 0;
 int menuOption = 0;
 int settingOption = 0;
 int length = 6;
-int score = 0;
 bool run = true;
 bool startGame = false;
 bool startSetting = false;
+
+const char* state[] = {
+    "data/image/Main Ship/Main Ship - Base - Very damaged.png",
+    "data/image/Main Ship/Main Ship - Base - Damaged.png",
+    "data/image/Main Ship/Main Ship - Base - Slight damage.png",
+    "data/image/Main Ship/Main Ship - Base - Full health.png"
+};
 
 #endif

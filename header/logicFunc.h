@@ -63,7 +63,7 @@ void moveEnemyTowardsPlayer(Object& enemy, const Player& player, float speed) {
     directionY /= length;
 
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderDrawLine(renderer, enemy.x + 5 * cos(enemy.angle), enemy.y + 5 * sin(enemy.angle), enemy.x + directionX * 40 , enemy.y + directionY * 40);
+    SDL_RenderDrawLine(renderer, enemy.x, enemy.y, enemy.x + directionX * 40 , enemy.y + directionY * 40);
 
     enemy.x += directionX * speed;
     enemy.y += directionY * speed;

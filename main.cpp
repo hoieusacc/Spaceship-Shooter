@@ -60,6 +60,9 @@ int main(int argc, char* argv[]) {
     while (run){
         Player player = {400, 300, 0, 0, 32, 200, 0, 0, 0};
         Mouse mouse = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 0, 0, length + 8};
+        int highScore = 0;
+        int score = 0;
+
         LinkedList enemies;
         Object* temp = new Object{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0};
         enemies.insertAtEnd(temp);
@@ -202,22 +205,22 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            getPlayerAngle(player, mouse);
             
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
             
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 15);
+            getPlayerAngle(player, mouse);
             updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction);
-
-            SDL_Rect srcRect = {0, 0, 32, 32};
-            SDL_Rect dstRect = {player.x,  player.y, player.size, player.size};
-            drawImage(renderer, "data/image/Main Ship/Main Ship - Base - Full health.png", dstRect, srcRect, player.angle * 180 / PI);
-
             updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
-            drawScore(textRenderer, font, score);
+            
+            SDL_Rect srcRect = {0, 0, 32, 32};
+            SDL_Rect dstRect = {player.x - 16,  player.y - 16, player.size, player.size};
+            
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            drawImage(renderer, state[player.health - 1], dstRect, srcRect, player.angle * 180 / PI);
             drawCrosshair(mouse, renderer, length, rad, omega);
+            drawHealthBar(WINDOW_WIDTH - 320, WINDOW_WIDTH - 20, 20, 20, player.health);
+            drawScore(textRenderer, score);
 
             for (int i = 2; i <= numberOfEnemies; i++) {
                 Object* enemy = enemies.takeDataAtPosition(i);
@@ -227,31 +230,33 @@ int main(int argc, char* argv[]) {
                 getEnemyAngle(*enemy, player);
             
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                SDL_Rect dstRect = {enemy->x,  enemy->y, enemy->size, enemy->size};
+                SDL_Rect dstRect = {enemy->x - 16, enemy->y - 16, enemy->size, enemy->size};
                 drawImage(renderer, "data/image/Enemy/Basic/Nairan - Fighter - Base.png", dstRect, srcRect, enemy->angle * 180 / PI);
             
                 if (colideCheck(*enemy, player)) {
-                    std::cout << "Game over" << std::endl;
-                    startGame = false;
-                    run = true;
+                    enemies.deleteAtPosition(i);
+                    numberOfEnemies--;
+                    player.health--;
                 }
 
                 if (player.fire && isEnemyOnLine(player, mouse, *enemy)){
                     score += 10;
                     enemies.deleteAtPosition(i);
                     numberOfEnemies--;
-                    if (numberOfEnemies == 1){
-                        std::cout << "Wave Completed!" << std::endl;
-                    }
-                    if (score > highScore){
-                        highScore = score;
-                    }
+                    
                 }
             }
             if (numberOfEnemies == 1){
                 create++;
                 for (int i = 0; i < create; i++){
                     createEnemies(enemies, numberOfEnemies, temp->size);
+                }
+            }
+            if (!player.health){
+                startGame = false;
+                run = true;
+                if (score > highScore){
+                    highScore = score;
                 }
             }
         

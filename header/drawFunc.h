@@ -54,7 +54,8 @@ void drawSetting(SDL_Renderer* textRenderer, int currentOption) {
     }
 }
 
-void drawScore(SDL_Renderer* renderer, TTF_Font* font, int score){
+void drawScore(SDL_Renderer* renderer, int score){
+    TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 15);
     std::string scoreText = "Score: " + std::to_string(score);
     SDL_Color white = { 255, 255, 255 };
     SDL_Color yellow = { 255, 255, 0 };
@@ -64,7 +65,7 @@ void drawScore(SDL_Renderer* renderer, TTF_Font* font, int score){
     int textHeight = surface->h;
     SDL_FreeSurface(surface);
 
-    SDL_Rect dstRect = {textWidth / 4 , textHeight, textWidth, textHeight };
+    SDL_Rect dstRect = {20 , 20, textWidth, textHeight };
     SDL_RenderCopy(renderer, texture, nullptr, &dstRect);
 }
 
@@ -94,6 +95,16 @@ void drawCrosshair(Mouse &mouse, SDL_Renderer* renderer, int length, float &rad,
     SDL_RenderDrawLine(renderer, mouse.x, mouse.y + line, mouse.x, mouse.y + line - 2);
     SDL_RenderDrawLine(renderer, mouse.x - line, mouse.y, mouse.x - line + 2, mouse.y);
     SDL_RenderDrawLine(renderer, mouse.x, mouse.y - line, mouse.x, mouse.y - line + 2);
+}
+
+void drawHealthBar(int start, int end, int y, int size, int health){
+    SDL_Rect dstRect1 = {start - 2.5, y + 2.5, health * (end - start) / 4, size};
+    SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
+    SDL_RenderFillRect(renderer, &dstRect1);
+
+    SDL_Rect dstRect2 = {start - 2.5, y, end - start + 2.5, size + 5};
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderDrawRect(renderer, &dstRect2);
 }
 
 void drawBackground(float posx){

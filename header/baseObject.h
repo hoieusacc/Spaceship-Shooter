@@ -10,6 +10,7 @@ struct Object {
 struct Player {
     float x, y, vx, vy, size, a, angle;
     bool moving, fire;
+    int health = 4;
 };
 
 struct Mouse{
