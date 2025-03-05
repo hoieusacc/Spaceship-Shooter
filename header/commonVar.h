@@ -43,6 +43,7 @@ float omega = 0.025;
 int menuOption = 0;
 int settingOption = 0;
 int length = 6;
+int volume = 100;
 bool run = true;
 bool startGame = false;
 bool startSetting = false;

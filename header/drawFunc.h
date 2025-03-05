@@ -13,6 +13,16 @@ void drawImage(SDL_Renderer* renderer, const char* path, SDL_Rect dstRect, SDL_R
     SDL_RenderCopyEx(renderer, texture, &srcRect, &dstRect, angle, nullptr, SDL_FLIP_NONE);
 }
 
+void drawHealthBar(int start, int end, int y, int size, int health){
+    SDL_Rect dstRect1 = {start - 2.5, y + 2.5,health * (end - start) / 4, size};
+    SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
+    SDL_RenderFillRect(renderer, &dstRect1);
+
+    SDL_Rect dstRect2 = {start - 2.5, y, end - start + 2.5, size + 5};
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderDrawRect(renderer, &dstRect2);
+}
+
 void drawMenu(SDL_Renderer* textRenderer, int currentOption) {
     TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 40);
     const char* menuItems[] = {"Start" ,"Setting" ,"High Score" ,"Quit"};
@@ -32,7 +42,7 @@ void drawMenu(SDL_Renderer* textRenderer, int currentOption) {
     }
 }
 
-void drawSetting(SDL_Renderer* textRenderer, int currentOption) {
+void drawSetting(SDL_Renderer* textRenderer, int currentOption, int volume) {
     TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 40);
     SDL_SetRenderDrawColor(textRenderer, 0, 0, 0, 255);
     SDL_RenderClear(textRenderer);
@@ -48,8 +58,14 @@ void drawSetting(SDL_Renderer* textRenderer, int currentOption) {
         int textWidth = surface->w;
         int textHeight = surface->h;
         SDL_FreeSurface(surface);
-
-        SDL_Rect dstRect = {(WINDOW_WIDTH - textWidth) / 2 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight + 50), textWidth, textHeight };
+        SDL_Rect dstRect;
+        if (i == 0 && currentOption == i){
+            dstRect = {WINDOW_WIDTH / 2 - 2 * textWidth ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
+            drawHealthBar(WINDOW_WIDTH / 2 - textWidth + 20, WINDOW_WIDTH / 2 - textWidth + 70, WINDOW_HEIGHT / 2 - 35 + (i - 1) * (textHeight), textHeight / 2, volume / 4);
+        }
+        else{
+            dstRect = {(WINDOW_WIDTH - textWidth) / 2 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
+        }
         SDL_RenderCopy(textRenderer, texture, nullptr, &dstRect);
     }
 }
@@ -95,16 +111,6 @@ void drawCrosshair(Mouse &mouse, SDL_Renderer* renderer, int length, float &rad,
     SDL_RenderDrawLine(renderer, mouse.x, mouse.y + line, mouse.x, mouse.y + line - 2);
     SDL_RenderDrawLine(renderer, mouse.x - line, mouse.y, mouse.x - line + 2, mouse.y);
     SDL_RenderDrawLine(renderer, mouse.x, mouse.y - line, mouse.x, mouse.y - line + 2);
-}
-
-void drawHealthBar(int start, int end, int y, int size, int health){
-    SDL_Rect dstRect1 = {start - 2.5, y + 2.5, health * (end - start) / 4, size};
-    SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
-    SDL_RenderFillRect(renderer, &dstRect1);
-
-    SDL_Rect dstRect2 = {start - 2.5, y, end - start + 2.5, size + 5};
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderDrawRect(renderer, &dstRect2);
 }
 
 void drawBackground(float posx){

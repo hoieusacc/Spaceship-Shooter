@@ -53,7 +53,7 @@ void updateMousePosition(Mouse& mouse, int windowWidth, int windowHeight, float 
     }
 }
 
-void moveEnemyTowardsPlayer(Object& enemy, const Player& player, float speed) {
+void moveEnemyTowardsPlayer(Enemy& enemy, const Player& player, float speed) {
     float directionX = player.x - enemy.x;
     float directionY = player.y - enemy.y;
 
@@ -69,7 +69,7 @@ void moveEnemyTowardsPlayer(Object& enemy, const Player& player, float speed) {
     enemy.y += directionY * speed;
 }
 
-bool colideCheck(Object enemy, Player player){
+bool colideCheck(Enemy enemy, Player player){
     float directionX = player.x - enemy.x;
     float directionY = player.y - enemy.y;
 
@@ -89,19 +89,19 @@ float getRandomNumber(int start, int end){
 
 void createEnemies(LinkedList &enemies, int &numberOfEnemies, float size){
     int choice = getRandomNumber(1, 4);
-    Object* temp;
+    Enemy* temp;
     switch (choice){
         case 1:
-            temp = new Object{getRandomNumber(0, WINDOW_WIDTH), getRandomNumber(WINDOW_HEIGHT, WINDOW_HEIGHT + 200), 0, 0, size, 0};
+            temp = new Enemy{getRandomNumber(0, WINDOW_WIDTH), getRandomNumber(WINDOW_HEIGHT, WINDOW_HEIGHT + 200), 0, 0, size, 0};
             break;
         case 2:
-            temp = new Object{getRandomNumber(0, WINDOW_WIDTH), getRandomNumber(-200, 0), 0, 0, size, 0};
+            temp = new Enemy{getRandomNumber(0, WINDOW_WIDTH), getRandomNumber(-200, 0), 0, 0, size, 0};
             break;
         case 3:
-            temp = new Object{getRandomNumber(WINDOW_WIDTH, WINDOW_WIDTH + 200), getRandomNumber(0, WINDOW_HEIGHT), 0, 0, size, 0};
+            temp = new Enemy{getRandomNumber(WINDOW_WIDTH, WINDOW_WIDTH + 200), getRandomNumber(0, WINDOW_HEIGHT), 0, 0, size, 0};
             break;
         case 4:
-            temp = new Object{getRandomNumber(-200, 0), getRandomNumber(0, WINDOW_HEIGHT), 0, 0, size, 0};
+            temp = new Enemy{getRandomNumber(-200, 0), getRandomNumber(0, WINDOW_HEIGHT), 0, 0, size, 0};
             break;
         
     }
@@ -109,7 +109,7 @@ void createEnemies(LinkedList &enemies, int &numberOfEnemies, float size){
     numberOfEnemies++;
 }
 
-bool isEnemyOnLine(const Player& player, const Mouse& mouse, const Object& enemy) {
+bool isEnemyOnLine(const Player& player, const Mouse& mouse, const Enemy& enemy) {
     float dx = mouse.x - player.x;
     float dy = mouse.y - player.y;
     
@@ -167,7 +167,7 @@ void getPlayerAngle(Player& player, Mouse& mouse){
     player.angle = angle;
 }
 
-void getEnemyAngle(Object& enemy, Player player){
+void getEnemyAngle(Enemy& enemy, Player player){
     double deltaX = player.x - enemy.x;
     double deltaY = player.y - enemy.y;
 

@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
         int score = 0;
 
         LinkedList enemies;
-        Object* temp = new Object{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 32, 0};
+        Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 32, 0};
         enemies.insertAtEnd(temp);
         int numberOfEnemies = 1;
 
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
                             menuOption++;
                         }
                         break;
-                    case SDLK_RIGHT:
+                    case SDLK_RETURN:
                         if (menuOption == 0){
                             std::cout << "Game Start!" << std::endl;
                             startGame = true;
@@ -219,10 +219,9 @@ int main(int argc, char* argv[]) {
             drawScore(renderer, score);
             drawImage(renderer, state[player.health - 1], dstRect, srcRect, player.angle * 180 / PI);
             drawCrosshair(mouse, renderer, length, rad, omega);
-            drawHealthBar(WINDOW_WIDTH - 320, WINDOW_WIDTH - 20, 20, 20, player.health);
 
             for (int i = 2; i <= numberOfEnemies; i++) {
-                Object* enemy = enemies.takeDataAtPosition(i);
+                Enemy* enemy = enemies.takeDataAtPosition(i);
                 if (move){
                     moveEnemyTowardsPlayer(*enemy, player, velocity);
                 }
@@ -245,6 +244,9 @@ int main(int argc, char* argv[]) {
                     
                 }
             }
+
+            drawHealthBar(WINDOW_WIDTH - 320, WINDOW_WIDTH - 20, 20, 20, player.health);
+
             if (numberOfEnemies == 1){
                 create++;
                 for (int i = 0; i < create; i++){
@@ -282,7 +284,7 @@ int main(int argc, char* argv[]) {
                                 settingOption++;
                             }
                             break;
-                        case SDLK_RIGHT:
+                        case SDLK_RETURN:
                             if (settingOption == 0){
                                 std::cout << "Cai dat tro choi!" << std::endl;
                             }
@@ -291,13 +293,24 @@ int main(int argc, char* argv[]) {
                                 startSetting = false;
                             }
                             break;
+                        case SDLK_RIGHT:
+                            if (volume < 100){
+                                volume++;
+                            }
+                            Mix_Volume(-1, volume * 128 / 100);
+                            break;
+                        case SDLK_LEFT:
+                            if (volume > 0){
+                                volume--;
+                            }
+                            Mix_Volume(-1, volume * 128 / 100);
+                            break;
                         default:
                             break;
                     }
                 }
             }
-            drawSetting(renderer, settingOption);
-            drawBackground(posx);
+            drawSetting(renderer, settingOption, volume);
             SDL_RenderPresent(renderer);
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);

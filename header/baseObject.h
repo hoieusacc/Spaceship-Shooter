@@ -3,24 +3,31 @@
 
 #include "commonVar.h"
 
-struct Object {
-    float x, y, vx, vy, size, angle;
+class BaseObject{
+public:
+    float x, y, vx, vy, size;
 };
 
-struct Player {
-    float x, y, vx, vy, size, a, angle;
+class Enemy : public BaseObject{
+public:
+    float angle;
+};
+
+class Player : public BaseObject{
+public:
+    float a, angle;
     bool moving, fire;
     int health = 4;
 };
 
-struct Mouse{
-    float x, y, vx, vy;
+class Mouse : public BaseObject{
+public:
     bool moving;
-    int size;
+    float size;
 };
 
 struct Node{
-    Object* data;
+    Enemy* data;
     Node* next;
 };
 
@@ -40,7 +47,7 @@ public:
         }
     }
 
-    void insertAtEnd(Object* value) {
+    void insertAtEnd(Enemy* value) {
         Node* newNode = new Node{value};
 
         if (head == nullptr) {
@@ -65,7 +72,7 @@ public:
         delete nodeToDelete;
     }
 
-    Object* takeDataAtPosition(int position){
+    Enemy* takeDataAtPosition(int position){
         Node* temp = head;
         for (int i = 1; i < position && temp; ++i){
             temp = temp->next;
