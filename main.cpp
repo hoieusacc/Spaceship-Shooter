@@ -295,13 +295,13 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_RIGHT:
                             if (volume < 100){
-                                volume++;
+                                volume += 5;
                             }
                             Mix_Volume(-1, volume * 128 / 100);
                             break;
                         case SDLK_LEFT:
                             if (volume > 0){
-                                volume--;
+                                volume -= 5;
                             }
                             Mix_Volume(-1, volume * 128 / 100);
                             break;

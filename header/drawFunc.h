@@ -14,11 +14,12 @@ void drawImage(SDL_Renderer* renderer, const char* path, SDL_Rect dstRect, SDL_R
 }
 
 void drawHealthBar(int start, int end, int y, int size, int health){
+    int temp = health;
     SDL_Rect dstRect1 = {start - 2.5, y + 2.5,health * (end - start) / 4, size};
     SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
     SDL_RenderFillRect(renderer, &dstRect1);
 
-    SDL_Rect dstRect2 = {start - 2.5, y, end - start + 2.5, size + 5};
+    SDL_Rect dstRect2 = {start - 2.5, y, temp * (end - start) / 4 + 2.5, size + 5};
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(renderer, &dstRect2);
 }
