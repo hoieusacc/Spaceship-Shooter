@@ -40,7 +40,11 @@ bool init(){
 
 void close(){
     SDL_DestroyRenderer(renderer);
+    SDL_DestroyRenderer(textRenderer);
     SDL_DestroyWindow(window);
+    Mix_CloseAudio();
+    Mix_Quit();
+    TTF_Quit();
     SDL_Quit();
 }
 
@@ -72,6 +76,9 @@ int main(int argc, char* argv[]) {
         for (int i = 0; i < create; i++){
             createEnemies(enemies, numberOfEnemies, temp->size);
         }
+
+        Mix_Volume(-1, volume * 128 / 100);
+
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
@@ -149,7 +156,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_UP:
                             mouse.vy = 0;
-                            mouse.vy -= 1.5 * player.a * deltaTime;
+                            mouse.vy -= sensitivity / 100 * player.a * deltaTime;
                             if (mouse.vy < MIN_VELOCITY){
                                 mouse.vy = MIN_VELOCITY;
                             }
@@ -157,7 +164,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_DOWN:
                             mouse.vy = 0;
-                            mouse.vy += 1.5 * player.a * deltaTime;
+                            mouse.vy += sensitivity / 100 * player.a * deltaTime;
                             if (mouse.vy > MAX_VELOCITY){
                                 mouse.vy = MAX_VELOCITY;
                             }
@@ -165,7 +172,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_RIGHT:
                             mouse.vx = 0;
-                            mouse.vx += 1.5 * player.a * deltaTime;
+                            mouse.vx += sensitivity / 100 * player.a * deltaTime;
                             if (mouse.vx > MAX_VELOCITY){
                                 mouse.vx = MAX_VELOCITY;
                             }
@@ -173,7 +180,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_LEFT:
                             mouse.vx = 0;
-                            mouse.vx -= 1.5 * player.a * deltaTime;
+                            mouse.vx -= sensitivity / 100 * player.a * deltaTime;
                             if (mouse.vx < MIN_VELOCITY){
                                 mouse.vx = MIN_VELOCITY;
                             }
@@ -280,42 +287,53 @@ int main(int argc, char* argv[]) {
                             }
                             break;
                         case SDLK_DOWN:
-                            if (settingOption < 1){
+                            if (settingOption < 2){
                                 settingOption++;
                             }
                             break;
                         case SDLK_RETURN:
-                            if (settingOption == 0){
-                                std::cout << "Cai dat tro choi!" << std::endl;
-                            }
-                            else{
+                            if (settingOption == 2){
                                 run = true;
                                 startSetting = false;
                             }
                             break;
                         case SDLK_RIGHT:
-                            if (volume < 100){
-                                volume += 5;
+                            if (settingOption == 0){
+                                if (volume < 100){
+                                    volume += 5;
+                                }
+                                Mix_Volume(-1, volume * 128 / 100);
                             }
-                            Mix_Volume(-1, volume * 128 / 100);
+                            else if (settingOption == 1){
+                                if (sensitivity < 200){
+                                    sensitivity +=  10;
+                                }
+                            }
                             break;
                         case SDLK_LEFT:
-                            if (volume > 0){
-                                volume -= 5;
+                            if (settingOption == 0){
+                                if (volume > 0){
+                                    volume -= 5;
+                                }
+                                Mix_Volume(-1, volume * 128 / 100);
                             }
-                            Mix_Volume(-1, volume * 128 / 100);
+                            else if (settingOption == 1){
+                                if (sensitivity > 0){
+                                    sensitivity -= 10;
+                                }
+                            }
                             break;
                         default:
                             break;
                     }
                 }
             }
-            drawSetting(renderer, settingOption, volume);
+            drawSetting(renderer, settingOption, volume, sensitivity);
             SDL_RenderPresent(renderer);
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        drawBackground(posx);
+        //drawBackground(posx);
         drawMenu(renderer, menuOption);
         SDL_RenderPresent(renderer);
     }

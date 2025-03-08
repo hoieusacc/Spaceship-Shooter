@@ -12,14 +12,24 @@ void drawImage(SDL_Renderer* renderer, const char* path, SDL_Rect dstRect, SDL_R
 
     SDL_RenderCopyEx(renderer, texture, &srcRect, &dstRect, angle, nullptr, SDL_FLIP_NONE);
 }
-
-void drawHealthBar(int start, int end, int y, int size, int health){
-    int temp = health;
+template <class T>
+void drawHealthBar(T start, T end, T y, T size, T health){
+    TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 10);
     SDL_Rect dstRect1 = {start - 2.5, y + 2.5,health * (end - start) / 4, size};
     SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
     SDL_RenderFillRect(renderer, &dstRect1);
 
-    SDL_Rect dstRect2 = {start - 2.5, y, temp * (end - start) / 4 + 2.5, size + 5};
+    SDL_Color white = { 255, 255, 255 };
+    std::string healthText = std::to_string(health);
+    SDL_Surface* surfaceText = TTF_RenderUTF8_Solid(font, healthText.c_str(), white);
+    SDL_Texture* textureText = SDL_CreateTextureFromSurface(textRenderer, surfaceText);
+    int textWidth = surfaceText->w;
+    int textHeight = surfaceText->h;
+
+    SDL_Rect dstRect3 = {start + 10 , y, textWidth, textHeight };
+    SDL_RenderCopy(renderer, textureText, nullptr, &dstRect3);
+
+    SDL_Rect dstRect2 = {start - 2.5, y, health * (end - start) / 4 + 2.5, size + 5};
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(renderer, &dstRect2);
 }
@@ -43,17 +53,17 @@ void drawMenu(SDL_Renderer* textRenderer, int currentOption) {
     }
 }
 
-void drawSetting(SDL_Renderer* textRenderer, int currentOption, int volume) {
+void drawSetting(SDL_Renderer* textRenderer, int currentOption, int volume, int sensitivity) {
     TTF_Font* font = TTF_OpenFont("data/font/JetBrainsMono-Regular.ttf", 40);
     SDL_SetRenderDrawColor(textRenderer, 0, 0, 0, 255);
     SDL_RenderClear(textRenderer);
 
-    const char* menuItems[] = {"Music" ,"Back"};
+    const char* menuItems[] = {"Music", "Sensitivity","Back"};
 
     SDL_Color white = { 255, 255, 255 };
     SDL_Color yellow = { 255, 255, 0 };
 
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < 3; ++i) {
         surface = TTF_RenderUTF8_Solid(font, menuItems[i], (i == currentOption) ? yellow : white);
         texture = SDL_CreateTextureFromSurface(textRenderer, surface);
         int textWidth = surface->w;
@@ -61,8 +71,12 @@ void drawSetting(SDL_Renderer* textRenderer, int currentOption, int volume) {
         SDL_FreeSurface(surface);
         SDL_Rect dstRect;
         if (i == 0 && currentOption == i){
-            dstRect = {WINDOW_WIDTH / 2 - 2 * textWidth ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
-            drawHealthBar(WINDOW_WIDTH / 2 - textWidth + 20, WINDOW_WIDTH / 2 - textWidth + 70, WINDOW_HEIGHT / 2 - 35 + (i - 1) * (textHeight), textHeight / 2, volume / 4);
+            dstRect = {WINDOW_WIDTH / 2 - textWidth - 20 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
+            drawHealthBar(WINDOW_WIDTH / 2 + 10, WINDOW_WIDTH / 2 + 70, WINDOW_HEIGHT / 2 - 35 + (i - 1) * (textHeight), textHeight / 2, volume / 4);
+        }
+        else if (i == 1 && currentOption == i){
+            dstRect = {WINDOW_WIDTH / 2 - textWidth - 20 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
+            drawHealthBar(WINDOW_WIDTH / 2 + 10, WINDOW_WIDTH / 2 + 70, WINDOW_HEIGHT / 2 - 35 + (i - 1) * (textHeight), textHeight / 2, sensitivity / 8);
         }
         else{
             dstRect = {(WINDOW_WIDTH - textWidth) / 2 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
