@@ -12,6 +12,7 @@
 #include <iostream>
 #include <random>
 #include <string>
+#include <vector>
 #include <windows.h>
 
 const int WINDOW_WIDTH = 1080;

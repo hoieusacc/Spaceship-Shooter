@@ -1,7 +1,7 @@
 #include "header/includeFile.h"
 
 bool init(){
-    window = SDL_CreateWindow("Prototype Spaceship Shooter", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Spaceship Shooter", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     if (!window){
         std::cerr << "Cannot create window!" << std::endl;
         return false;
@@ -112,6 +112,7 @@ int main(int argc, char* argv[]) {
             }
         }
         int move = 1;
+        std::vector<Bullet> bullets;
         while (startGame) {
             auto frameStart = std::chrono::steady_clock::now();
             Uint32 currentTime = SDL_GetTicks();
@@ -191,6 +192,11 @@ int main(int argc, char* argv[]) {
                             drawLineToMouse(player, renderer, mouse.x, mouse.y);
                             player.fire = true;
                             break;
+                        case SDLK_e:{
+                            Bullet newBullet = {player.x, player.y, player.angle - PI / 2};
+                            bullets.push_back(newBullet);
+                            break;
+                        }
                         case SDLK_f:
                             move += 1;
                             move %= 2;
@@ -218,11 +224,19 @@ int main(int argc, char* argv[]) {
             getPlayerAngle(player, mouse);
             updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction);
             updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+            for (int i = 0; i < bullets.size(); i++){
+                drawCircle(renderer, bullets[i].x, bullets[i].y, bullets[i].size);
+                bullets[i].move(cos(bullets[i].angle), sin(bullets[i].angle));
+                if (bullets[i].x > WINDOW_WIDTH || bullets[i].x < 0 || bullets[i].y > WINDOW_HEIGHT || bullets[i].y < 0){
+                    bullets.erase(bullets.begin() + i);
+                }
+            }
             
             SDL_Rect srcRect = {0, 0, 32, 32};
             SDL_Rect dstRect = {player.x - player.size / 2,  player.y - player.size / 2, player.size, player.size};
             
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             drawScore(renderer, score);
             drawImage(renderer, state[player.health - 1], dstRect, srcRect, player.angle * 180 / PI);
             drawCrosshair(mouse, renderer, length, rad, omega);

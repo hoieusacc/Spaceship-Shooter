@@ -20,6 +20,18 @@ public:
     int health = 4;
 };
 
+class Bullet{
+public:
+    float x, y, angle;
+    float size = 5;
+
+    void move(float dx, float dy){
+        x += 2 * dx;
+        y += 2 * dy;
+    }
+
+};
+
 class Mouse : public BaseObject{
 public:
     bool moving;
