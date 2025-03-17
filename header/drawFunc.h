@@ -9,13 +9,13 @@ void drawImage(SDL_Renderer* renderer, const char* path, SDL_Rect dstRect, SDL_R
     SDL_Surface* loadedSurface = IMG_Load(path);
     texture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
     SDL_FreeSurface(loadedSurface);
-
+    
     SDL_RenderCopyEx(renderer, texture, &srcRect, &dstRect, angle, nullptr, SDL_FLIP_NONE);
 }
 
 template <class T>
 void drawHealthBar(T start, T end, T y, T size, T health){
-    TTF_Font* font = TTF_OpenFont("data/font/04B_30__.ttf", 10);
+    TTF_Font* font = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 10);
     SDL_Rect dstRect1 = {start - 2.5, y + 2.5,health * (end - start) / 4, size};
     SDL_SetRenderDrawColor(renderer, 144, 238, 144, 255);
     SDL_RenderFillRect(renderer, &dstRect1);
@@ -39,7 +39,7 @@ void drawMenu(SDL_Renderer* textRenderer, int currentOption) {
     SDL_Color white = { 255, 255, 255 };
     SDL_Color yellow = { 255, 255, 0 };
 
-    TTF_Font* font = TTF_OpenFont("data/font/04B_30__.ttf", 50);
+    TTF_Font* font = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 50);
 
     surface = TTF_RenderUTF8_Solid(font, "Spaceship Shooter", white);
     texture = SDL_CreateTextureFromSurface(textRenderer, surface);
@@ -49,7 +49,7 @@ void drawMenu(SDL_Renderer* textRenderer, int currentOption) {
     SDL_Rect dstRect = { WINDOW_WIDTH / 2 - textWidth / 2, 150, textWidth, textHeight };
     SDL_RenderCopy(textRenderer, texture, nullptr, &dstRect);
 
-    font = TTF_OpenFont("data/font/04B_30__.ttf", 40);
+    font = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 40);
     const char* menuItems[] = {"Start" ,"Setting" ,"High Score" ,"Quit"};
 
     for (int i = 0; i < 4; ++i) {
@@ -65,7 +65,7 @@ void drawMenu(SDL_Renderer* textRenderer, int currentOption) {
 }
 
 void drawSetting(SDL_Renderer* textRenderer, int currentOption, int volume, int sensitivity) {
-    TTF_Font* font = TTF_OpenFont("data/font/04B_30__.ttf", 40);
+    TTF_Font* font = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 40);
     SDL_SetRenderDrawColor(textRenderer, 0, 0, 0, 255);
     SDL_RenderClear(textRenderer);
 
@@ -97,7 +97,7 @@ void drawSetting(SDL_Renderer* textRenderer, int currentOption, int volume, int 
 }
 
 void drawScore(SDL_Renderer* renderer, int score){
-    TTF_Font* font = TTF_OpenFont("data/font/04B_30__.ttf", 15);
+    TTF_Font* font = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 15);
     std::string scoreText = "Score: " + std::to_string(score);
     SDL_Color white = { 255, 255, 255 };
     SDL_Color yellow = { 255, 255, 0 };
