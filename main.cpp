@@ -1,17 +1,17 @@
 #include "header/includeFile.h"
 
 bool init(){
-    window = SDL_CreateWindow("Spaceship Shooter", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH / 2, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Spaceship Shooter", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     if (!window){
         std::cerr << "Cannot create window!" << std::endl;
         return false;
     }
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!renderer){
         std::cerr << "Cannot create renderer!" << std::endl;
         return false;
     }
-    textRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    backgroundRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return false;
@@ -40,12 +40,22 @@ bool init(){
 
 void close(){
     SDL_DestroyRenderer(renderer);
-    SDL_DestroyRenderer(textRenderer);
+    SDL_DestroyRenderer(backgroundRenderer);
     SDL_DestroyWindow(window);
     Mix_CloseAudio();
     Mix_Quit();
     TTF_Quit();
     SDL_Quit();
+}
+
+void loadBackground(){
+    for (int i = 0; i < 3; i++){
+        backgroundSurface[i] = IMG_Load(backgroundPath[i]);
+        backgroundTexture[i] = SDL_CreateTextureFromSurface(renderer, backgroundSurface[i]);
+
+        SDL_FreeSurface(backgroundSurface[i]);
+    }
+    
 }
 
 int main(int argc, char* argv[]) {
@@ -61,6 +71,7 @@ int main(int argc, char* argv[]) {
     Uint32 lastTime = SDL_GetTicks();
     SDL_ShowCursor(SDL_DISABLE);
 
+    loadBackground();
     while (run){
         Player player = {400, 300, 0, 0, 32, 200, 0, 0, 0};
         Mouse mouse = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 0, 0, length + 8};
@@ -118,7 +129,6 @@ int main(int argc, char* argv[]) {
             Uint32 currentTime = SDL_GetTicks();
             float deltaTime = (currentTime - lastTime) / 1000.0f;
             lastTime = currentTime;
-            posx = (posx * player.x) / 5760;
 
             while (SDL_PollEvent(&e) != 0) {
                 if (e.type == SDL_KEYDOWN){
@@ -220,11 +230,16 @@ int main(int argc, char* argv[]) {
             
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
+            drawBackground(layer1, layer2, layer3);
             
             getPlayerAngle(player, mouse);
             updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction);
             updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+            layer1 = (player.x / 1080) * 576 * 2;
+            layer2 = (player.x * 1.5 / 1080) * 576 * 2;
+            layer3 = (player.x * 1.25 / 1080) * 576 * 2;
 
             for (int i = 0; i < bullets.size(); i++){
                 drawCircle(renderer, bullets[i].x, bullets[i].y, bullets[i].size);
@@ -342,15 +357,18 @@ int main(int argc, char* argv[]) {
                     }
                 }
             }
+            drawBackground(layer1, layer2, layer3);
             drawSetting(renderer, settingOption, volume, sensitivity);
             SDL_RenderPresent(renderer);
+            SDL_RenderPresent(backgroundRenderer);
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        drawBackground(posx);
+        drawBackground(layer1, layer2, layer3);
         drawMenu(renderer, menuOption);
         //SDL_RenderFillRect(renderer, {WINDOW_WIDTH / 2, 0, WINDOW_WIDTH / 2, WINDOW_HEIGHT});
         SDL_RenderPresent(renderer);
+        SDL_RenderPresent(backgroundRenderer);
     }
     close();
     return 0;

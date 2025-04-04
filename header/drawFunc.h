@@ -13,6 +13,11 @@ void drawImage(SDL_Renderer* renderer, const char* path, SDL_Rect dstRect, SDL_R
     SDL_RenderCopyEx(renderer, texture, &srcRect, &dstRect, angle, nullptr, SDL_FLIP_NONE);
 }
 
+void drawImage2(SDL_Renderer* renderer, SDL_Texture* loadTexture, SDL_Rect dstRect, SDL_Rect srcRect) {
+    SDL_RenderCopyEx(renderer, loadTexture, &srcRect, &dstRect, 0, nullptr, SDL_FLIP_NONE);
+}
+
+
 template <class T>
 void drawHealthBar(T start, T end, T y, T size, T health){
     TTF_Font* font = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 10);
@@ -23,7 +28,7 @@ void drawHealthBar(T start, T end, T y, T size, T health){
     SDL_Color white = { 255, 255, 255 };
     std::string healthText = std::to_string(health);
     SDL_Surface* surfaceText = TTF_RenderUTF8_Solid(font, healthText.c_str(), white);
-    SDL_Texture* textureText = SDL_CreateTextureFromSurface(textRenderer, surfaceText);
+    SDL_Texture* textureText = SDL_CreateTextureFromSurface(backgroundRenderer, surfaceText);
     int textWidth = surfaceText->w;
     int textHeight = surfaceText->h;
 
@@ -35,39 +40,39 @@ void drawHealthBar(T start, T end, T y, T size, T health){
     SDL_RenderDrawRect(renderer, &dstRect2);
 }
 
-void drawMenu(SDL_Renderer* textRenderer, int currentOption) {
+void drawMenu(SDL_Renderer* backgroundRenderer, int currentOption) {
     SDL_Color white = { 255, 255, 255 };
     SDL_Color yellow = { 255, 255, 0 };
 
     TTF_Font* font = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 50);
 
     surface = TTF_RenderUTF8_Solid(font, "Spaceship Shooter", white);
-    texture = SDL_CreateTextureFromSurface(textRenderer, surface);
+    texture = SDL_CreateTextureFromSurface(backgroundRenderer, surface);
     int textWidth = surface->w;
     int textHeight = surface->h;
     SDL_FreeSurface(surface);
     SDL_Rect dstRect = { WINDOW_WIDTH / 2 - textWidth / 2, 150, textWidth, textHeight };
-    SDL_RenderCopy(textRenderer, texture, nullptr, &dstRect);
+    SDL_RenderCopy(backgroundRenderer, texture, nullptr, &dstRect);
 
     font = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 40);
     const char* menuItems[] = {"Start" ,"Setting" ,"High Score" ,"Quit"};
 
     for (int i = 0; i < 4; ++i) {
         surface = TTF_RenderUTF8_Solid(font, menuItems[i], (i == currentOption) ? yellow : white);
-        texture = SDL_CreateTextureFromSurface(textRenderer, surface);
+        texture = SDL_CreateTextureFromSurface(backgroundRenderer, surface);
         int textWidth = surface->w;
         int textHeight = surface->h;
         SDL_FreeSurface(surface);
 
         SDL_Rect dstRect = { WINDOW_WIDTH / 2 - textWidth / 2, WINDOW_HEIGHT / 2 + (i - 1) * textHeight, textWidth, textHeight };
-        SDL_RenderCopy(textRenderer, texture, nullptr, &dstRect);
+        SDL_RenderCopy(backgroundRenderer, texture, nullptr, &dstRect);
     }
 }
 
-void drawSetting(SDL_Renderer* textRenderer, int currentOption, int volume, int sensitivity) {
+void drawSetting(SDL_Renderer* backgroundRenderer, int currentOption, int volume, int sensitivity) {
     TTF_Font* font = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 40);
-    SDL_SetRenderDrawColor(textRenderer, 0, 0, 0, 255);
-    SDL_RenderClear(textRenderer);
+    SDL_SetRenderDrawColor(backgroundRenderer, 0, 0, 0, 255);
+    SDL_RenderClear(backgroundRenderer);
 
     const char* menuItems[] = {"Music", "Sensitivity","Back"};
 
@@ -76,23 +81,23 @@ void drawSetting(SDL_Renderer* textRenderer, int currentOption, int volume, int 
 
     for (int i = 0; i < 3; ++i) {
         surface = TTF_RenderUTF8_Solid(font, menuItems[i], (i == currentOption) ? yellow : white);
-        texture = SDL_CreateTextureFromSurface(textRenderer, surface);
+        texture = SDL_CreateTextureFromSurface(backgroundRenderer, surface);
         int textWidth = surface->w;
         int textHeight = surface->h;
         SDL_FreeSurface(surface);
         SDL_Rect dstRect;
         if (i == 0 && currentOption == i){
             dstRect = {WINDOW_WIDTH / 2 - textWidth - 20 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
-            drawHealthBar(WINDOW_WIDTH / 2 + 10, WINDOW_WIDTH / 2 + 70, WINDOW_HEIGHT / 2 - 35 + (i - 1) * (textHeight), textHeight / 2, volume / 4);
+            drawHealthBar(WINDOW_WIDTH / 2 + 10, WINDOW_WIDTH / 2 + 70, WINDOW_HEIGHT / 2 - 45 + (i - 1) * (textHeight), textHeight / 2, volume / 4);
         }
         else if (i == 1 && currentOption == i){
             dstRect = {WINDOW_WIDTH / 2 - textWidth - 20 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
-            drawHealthBar(WINDOW_WIDTH / 2 + 10, WINDOW_WIDTH / 2 + 70, WINDOW_HEIGHT / 2 - 35 + (i - 1) * (textHeight), textHeight / 2, sensitivity / 8);
+            drawHealthBar(WINDOW_WIDTH / 2 + 10, WINDOW_WIDTH / 2 + 70, WINDOW_HEIGHT / 2 - 45 + (i - 1) * (textHeight), textHeight / 2, sensitivity / 8);
         }
         else{
             dstRect = {(WINDOW_WIDTH - textWidth) / 2 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
         }
-        SDL_RenderCopy(textRenderer, texture, nullptr, &dstRect);
+        SDL_RenderCopy(backgroundRenderer, texture, nullptr, &dstRect);
     }
 }
 
@@ -139,12 +144,13 @@ void drawCrosshair(Mouse &mouse, SDL_Renderer* renderer, int length, float &rad,
     SDL_RenderDrawLine(renderer, mouse.x, mouse.y - line, mouse.x, mouse.y - line + 2);
 }
 
-void drawBackground(float posx){
-    SDL_Rect srcRect = {posx, 0, 1080, 720};
+void drawBackground(float layer1, float layer2, float layer3){
+    SDL_Rect srcRect[3] = {{layer1, 0, 1080, 720}, {layer2, 0, 1080, 720}, {layer3, 0, 1080, 720}};
     SDL_Rect dstRect = {0, 0, 1080, 720};
-    drawImage(renderer, "data/image/BackGrounds/Condesed/Starry background  - Layer 01 - Void.png", dstRect, srcRect, 0);
-    drawImage(renderer, "data/image/BackGrounds/Condesed/Starry background  - Layer 02 - Stars.png", dstRect, srcRect, 0);
-    drawImage(renderer, "data/image/BackGrounds/Condesed/Starry background  - Layer 03 - Stars.png", dstRect, srcRect, 0);
+
+    for (int i = 0; i < 3; i++){
+        drawImage2(renderer, backgroundTexture[i], dstRect, srcRect[i]);
+    }
 }
 
 #endif

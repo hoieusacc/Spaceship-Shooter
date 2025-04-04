@@ -21,22 +21,34 @@ const int BPP = 32;
 
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
-static SDL_Renderer* textRenderer = NULL;
+static SDL_Renderer* backgroundRenderer = NULL;
 static SDL_Texture* texture = NULL;
 static SDL_Surface* surface = NULL;
 SDL_Event e;
 
+//SDL_Surface* backgroundSurface = NULL;
+//SDL_Texture* backgroundTexture1 = NULL;
+//SDL_Surface* backgroundSurface2 = NULL;
+//SDL_Texture* backgroundTexture2 = NULL;
+//SDL_Surface* backgroundSurface3 = NULL;
+//SDL_Texture* backgroundTexture3 = NULL;
+
+SDL_Surface* backgroundSurface[3] = {NULL};
+SDL_Texture* backgroundTexture[3] = {NULL};
+
 const float PI = 3.14159; 
 const int FPS = 120;
 const int FRAME_DELAY = 1000 / FPS;
-const int MAX_VELOCITY = 7;
-const int MIN_VELOCITY = -7;
+const int MAX_VELOCITY = 2;
+const int MIN_VELOCITY = -2;
 const int COLOR_KEY_R = 167;
 const int COLOR_KEY_G = 175;
 const int COLOR_KEY_B = 180;
 
-float posx = 0;
-float friction = 0.95f;
+float layer1 = 0;
+float layer2 = 0;
+float layer3 = 0;
+float friction = 0.99f;
 float velocity = 1;
 float crossFireFriction = 0.90f;
 float rad = PI / 2;
@@ -55,6 +67,12 @@ const char* state[] = {
     "data/image/Main Ship/Main Ship - Base - Damaged.png",
     "data/image/Main Ship/Main Ship - Base - Slight damage.png",
     "data/image/Main Ship/Main Ship - Base - Full health.png"
+};
+
+const char* backgroundPath[] = {
+    "data/image/Backgrounds/Condesed/Starry background  - Layer 01 - Void.png",
+    "data/image/BackGrounds/Condesed/Starry background  - Layer 02 - Stars.png",
+    "data/image/BackGrounds/Condesed/Starry background  - Layer 03 - Stars.png"
 };
 
 #endif
