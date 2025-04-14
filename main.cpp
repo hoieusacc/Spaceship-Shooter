@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_UP:
                             mouse.vy = 0;
-                            mouse.vy -= sensitivity / 100 * player.a * deltaTime;
+                            mouse.vy -= sensitivity * player.a * deltaTime;
                             if (mouse.vy < MIN_VELOCITY){
                                 mouse.vy = MIN_VELOCITY;
                             }
@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_DOWN:
                             mouse.vy = 0;
-                            mouse.vy += sensitivity / 100 * player.a * deltaTime;
+                            mouse.vy += sensitivity * player.a * deltaTime;
                             if (mouse.vy > MAX_VELOCITY){
                                 mouse.vy = MAX_VELOCITY;
                             }
@@ -186,7 +186,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_RIGHT:
                             mouse.vx = 0;
-                            mouse.vx += sensitivity / 100 * player.a * deltaTime;
+                            mouse.vx += sensitivity * player.a * deltaTime;
                             if (mouse.vx > MAX_VELOCITY){
                                 mouse.vx = MAX_VELOCITY;
                             }
@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_LEFT:
                             mouse.vx = 0;
-                            mouse.vx -= sensitivity / 100 * player.a * deltaTime;
+                            mouse.vx -= sensitivity * player.a * deltaTime;
                             if (mouse.vx < MIN_VELOCITY){
                                 mouse.vx = MIN_VELOCITY;
                             }
@@ -236,7 +236,7 @@ int main(int argc, char* argv[]) {
             drawBackground(layer1, layer2, layer3);
             
             getPlayerAngle(player, mouse);
-            updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction);
+            updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction, enemies, numberOfEnemies);
             updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 

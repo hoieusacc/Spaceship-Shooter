@@ -3,7 +3,7 @@
 #include "commonVar.h"
 #include "baseObject.h"
 
-void updatePlayerPosition(Player& player, int windowWidth, int windowHeight, float friction) {
+void updatePlayerPosition(Player& player, int windowWidth, int windowHeight, float friction, LinkedList& enemies, int numberOfEnemies) {
     player.x += player.vx;
     player.y += player.vy;
 
