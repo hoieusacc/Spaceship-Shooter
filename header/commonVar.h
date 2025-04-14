@@ -26,12 +26,8 @@ static SDL_Texture* texture = NULL;
 static SDL_Surface* surface = NULL;
 SDL_Event e;
 
-//SDL_Surface* backgroundSurface = NULL;
-//SDL_Texture* backgroundTexture1 = NULL;
-//SDL_Surface* backgroundSurface2 = NULL;
-//SDL_Texture* backgroundTexture2 = NULL;
-//SDL_Surface* backgroundSurface3 = NULL;
-//SDL_Texture* backgroundTexture3 = NULL;
+SDL_Surface* playerSurface = NULL;
+SDL_Texture* playerTexture = NULL;
 
 SDL_Surface* backgroundSurface[3] = {NULL};
 SDL_Texture* backgroundTexture[3] = {NULL};

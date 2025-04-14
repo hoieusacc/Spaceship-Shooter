@@ -48,14 +48,17 @@ void close(){
     SDL_Quit();
 }
 
+void loadImage(SDL_Surface* &loadSurface, SDL_Texture* &loadTexture, const char* path){
+    loadSurface = IMG_Load(path);
+    loadTexture = SDL_CreateTextureFromSurface(renderer, loadSurface);
+
+    SDL_FreeSurface(loadSurface);
+}
+
 void loadBackground(){
     for (int i = 0; i < 3; i++){
-        backgroundSurface[i] = IMG_Load(backgroundPath[i]);
-        backgroundTexture[i] = SDL_CreateTextureFromSurface(renderer, backgroundSurface[i]);
-
-        SDL_FreeSurface(backgroundSurface[i]);
+        loadImage(backgroundSurface[i], backgroundTexture[i], backgroundPath[i]);
     }
-    
 }
 
 int main(int argc, char* argv[]) {
@@ -366,7 +369,6 @@ int main(int argc, char* argv[]) {
         SDL_RenderClear(renderer);
         drawBackground(layer1, layer2, layer3);
         drawMenu(renderer, menuOption);
-        //SDL_RenderFillRect(renderer, {WINDOW_WIDTH / 2, 0, WINDOW_WIDTH / 2, WINDOW_HEIGHT});
         SDL_RenderPresent(renderer);
         SDL_RenderPresent(backgroundRenderer);
     }
