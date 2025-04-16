@@ -75,22 +75,27 @@ int main(int argc, char* argv[]) {
     SDL_ShowCursor(SDL_DISABLE);
 
     loadBackground();
+    Player player = {400, 300, 0, 0, 32, 200, 0, 0, 0};
+    Mouse mouse = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 0, 0, length + 8};
+    int highScore = 0;
+    int score = 0;
+    LinkedList enemies;
+    Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 32, 0};
+    enemies.insertAtEnd(temp);
+    int numberOfEnemies = 1;
+
+    int create = 4;
+    for (int i = 0; i < create; i++){
+        createEnemies(enemies, numberOfEnemies, temp->size);
+    }
+
+    SDL_Rect srcPlayerRect = {0, 0, 32, 32};
+    SDL_Rect dstPlayerRect = {player.x - player.size / 2,  player.y - player.size / 2, player.size, player.size};
+    SDL_Rect dstEnemyRect;
+    std::vector<Bullet> bullets;
+
+    Enemy* enemy;
     while (run){
-        Player player = {400, 300, 0, 0, 32, 200, 0, 0, 0};
-        Mouse mouse = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 0, 0, length + 8};
-        int highScore = 0;
-        int score = 0;
-
-        LinkedList enemies;
-        Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 32, 0};
-        enemies.insertAtEnd(temp);
-        int numberOfEnemies = 1;
-
-        int create = 4;
-        for (int i = 0; i < create; i++){
-            createEnemies(enemies, numberOfEnemies, temp->size);
-        }
-
         Mix_Volume(-1, volume * 128 / 100);
 
         while (SDL_PollEvent(&e) != 0) {
@@ -125,8 +130,6 @@ int main(int argc, char* argv[]) {
                 }
             }
         }
-        int move = 1;
-        std::vector<Bullet> bullets;
         while (startGame) {
             auto frameStart = std::chrono::steady_clock::now();
             Uint32 currentTime = SDL_GetTicks();
@@ -251,24 +254,20 @@ int main(int argc, char* argv[]) {
                     bullets.erase(bullets.begin() + i);
                 }
             }
-            
-            SDL_Rect srcRect = {0, 0, 32, 32};
-            SDL_Rect dstRect = {player.x - player.size / 2,  player.y - player.size / 2, player.size, player.size};
-            
-            drawScore(renderer, score);
-            drawImage(renderer, state[player.health - 1], dstRect, srcRect, player.angle * 180 / PI);
-            drawCrosshair(mouse, renderer, length, rad, omega);
 
+            drawScore(renderer, score);
+            drawImage(renderer, state[player.health - 1], dstPlayerRect, srcPlayerRect, player.angle * 180 / PI);
+            drawCrosshair(mouse, renderer, length, rad, omega);
             for (int i = 2; i <= numberOfEnemies; i++) {
-                Enemy* enemy = enemies.takeDataAtPosition(i);
+                enemy = enemies.takeDataAtPosition(i);
                 if (move){
                     moveEnemyTowardsPlayer(*enemy, player, velocity);
                 }
                 getEnemyAngle(*enemy, player);
             
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                SDL_Rect dstRect = {enemy->x - enemy->size / 2, enemy->y - enemy->size / 2, enemy->size, enemy->size};
-                drawImage(renderer, "data/image/Enemy/Basic/Nairan - Fighter - Base.png", dstRect, srcRect, enemy->angle * 180 / PI);
+                dstEnemyRect = {(int)(enemy->x - enemy->size / 2), (int)(enemy->y - enemy->size / 2), (int)enemy->size, (int)enemy->size};
+                drawImage(renderer, "data/image/Enemy/Basic/Nairan - Fighter - Base.png", dstEnemyRect, srcPlayerRect, enemy->angle * 180 / PI);
             
                 if (colideCheck(*enemy, player)) {
                     enemies.deleteAtPosition(i);
@@ -295,6 +294,15 @@ int main(int argc, char* argv[]) {
             if (!player.health){
                 startGame = false;
                 run = true;
+                LinkedList enemies;
+                Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 32, 0};
+                enemies.insertAtEnd(temp);
+                int numberOfEnemies = 1;
+
+                int create = 4;
+                for (int i = 0; i < create; i++){
+                    createEnemies(enemies, numberOfEnemies, temp->size);
+                }
                 if (score > highScore){
                     highScore = score;
                 }
@@ -365,12 +373,12 @@ int main(int argc, char* argv[]) {
             SDL_RenderPresent(renderer);
             SDL_RenderPresent(backgroundRenderer);
         }
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
+        //SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        //SDL_RenderClear(renderer);
         drawBackground(layer1, layer2, layer3);
         drawMenu(renderer, menuOption);
         SDL_RenderPresent(renderer);
-        SDL_RenderPresent(backgroundRenderer);
+        //SDL_RenderPresent(backgroundRenderer);
     }
     close();
     return 0;

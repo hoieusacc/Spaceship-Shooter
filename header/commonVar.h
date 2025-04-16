@@ -53,6 +53,7 @@ int menuOption = 0;
 int settingOption = 0;
 int length = 6;
 int volume = 10;
+int move = 1;
 float sensitivity = 150;
 bool run = true;
 bool startGame = false;
