@@ -48,19 +48,6 @@ void close(){
     SDL_Quit();
 }
 
-void loadImage(SDL_Surface* &loadSurface, SDL_Texture* &loadTexture, const char* path){
-    loadSurface = IMG_Load(path);
-    loadTexture = SDL_CreateTextureFromSurface(renderer, loadSurface);
-
-    SDL_FreeSurface(loadSurface);
-}
-
-void loadBackground(){
-    for (int i = 0; i < 3; i++){
-        loadImage(backgroundSurface[i], backgroundTexture[i], backgroundPath[i]);
-    }
-}
-
 int main(int argc, char* argv[]) {
     if (!init()){
         std::cerr << "Cannot initialize SDL!" << std::endl;
@@ -75,12 +62,15 @@ int main(int argc, char* argv[]) {
     SDL_ShowCursor(SDL_DISABLE);
 
     loadBackground();
-    Player player = {400, 300, 0, 0, 32, 200, 0, 0, 0};
+    loadImage(rocketSurface, rocketTexture, rocketPath);
+    loadImage(destroySurface, destroyTexture, destroyPath);
+    loadImage(raySurface, rayTexture, rayPath);
+    Player player = {400, 300, 0, 0, 48, 200, 0, 0, 0};
     Mouse mouse = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 0, 0, length + 8};
     int highScore = 0;
     int score = 0;
     LinkedList enemies;
-    Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 32, 0};
+    Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0};
     enemies.insertAtEnd(temp);
     int numberOfEnemies = 1;
 
@@ -88,15 +78,15 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < create; i++){
         createEnemies(enemies, numberOfEnemies, temp->size);
     }
-
+    
     SDL_Rect srcPlayerRect = {0, 0, 32, 32};
-    SDL_Rect dstPlayerRect = {player.x - player.size / 2,  player.y - player.size / 2, player.size, player.size};
+    SDL_Rect dstPlayerRect;
     SDL_Rect dstEnemyRect;
     std::vector<Bullet> bullets;
+    Mix_Volume(-1, volume * 128 / 100);
 
     Enemy* enemy;
     while (run){
-        Mix_Volume(-1, volume * 128 / 100);
 
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_KEYDOWN) {
@@ -173,7 +163,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_UP:
                             mouse.vy = 0;
-                            mouse.vy -= sensitivity * player.a * deltaTime;
+                            mouse.vy -= 2 * sensitivity * player.a * deltaTime;
                             if (mouse.vy < MIN_VELOCITY){
                                 mouse.vy = MIN_VELOCITY;
                             }
@@ -181,7 +171,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_DOWN:
                             mouse.vy = 0;
-                            mouse.vy += sensitivity * player.a * deltaTime;
+                            mouse.vy += 2 * sensitivity * player.a * deltaTime;
                             if (mouse.vy > MAX_VELOCITY){
                                 mouse.vy = MAX_VELOCITY;
                             }
@@ -189,7 +179,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_RIGHT:
                             mouse.vx = 0;
-                            mouse.vx += sensitivity * player.a * deltaTime;
+                            mouse.vx += 2 * sensitivity * player.a * deltaTime;
                             if (mouse.vx > MAX_VELOCITY){
                                 mouse.vx = MAX_VELOCITY;
                             }
@@ -197,7 +187,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_LEFT:
                             mouse.vx = 0;
-                            mouse.vx -= sensitivity * player.a * deltaTime;
+                            mouse.vx -= 2 * sensitivity * player.a * deltaTime;
                             if (mouse.vx < MIN_VELOCITY){
                                 mouse.vx = MIN_VELOCITY;
                             }
@@ -205,12 +195,15 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_q:
                             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                            drawLineToMouse(player, renderer, mouse.x, mouse.y);
+                            //drawLineToMouse(player, renderer, mouse);
+                            player.castRay(renderer, rayTexture);
                             player.fire = true;
                             break;
                         case SDLK_e:{
-                            Bullet newBullet = {player.x, player.y, player.angle - PI / 2};
-                            bullets.push_back(newBullet);
+                            if (bullets.size() < maxBullet){
+                                Bullet newBullet = {player.x, player.y, player.angle - PI / 2};
+                                bullets.push_back(newBullet);
+                            }
                             break;
                         }
                         case SDLK_f:
@@ -248,14 +241,16 @@ int main(int argc, char* argv[]) {
             layer3 = (player.x * 1.25 / 1080) * 576 * 2;
 
             for (int i = 0; i < bullets.size(); i++){
-                drawCircle(renderer, bullets[i].x, bullets[i].y, bullets[i].size);
+                drawImage2(renderer, rocketTexture, bullets[i].dstRect, bullets[i].srcRect, (bullets[i].angle + PI / 2) * 180 / PI);
                 bullets[i].move(cos(bullets[i].angle), sin(bullets[i].angle));
+                bullets[i].update();
                 if (bullets[i].x > WINDOW_WIDTH || bullets[i].x < 0 || bullets[i].y > WINDOW_HEIGHT || bullets[i].y < 0){
                     bullets.erase(bullets.begin() + i);
                 }
             }
 
             drawScore(renderer, score);
+            dstPlayerRect = {static_cast<int>(player.x - player.size / 2), static_cast<int>(player.y - player.size / 2), static_cast<int>(player.size), static_cast<int>(player.size)};
             drawImage(renderer, state[player.health - 1], dstPlayerRect, srcPlayerRect, player.angle * 180 / PI);
             drawCrosshair(mouse, renderer, length, rad, omega);
             for (int i = 2; i <= numberOfEnemies; i++) {
@@ -273,6 +268,16 @@ int main(int argc, char* argv[]) {
                     enemies.deleteAtPosition(i);
                     numberOfEnemies--;
                     player.health--;
+                }
+
+                for (int j = 0; j < bullets.size(); j++){
+                    if (colideCheck(*enemy, bullets[j])){
+                        enemy->destroyAnimation(renderer, destroyTexture);
+                        enemies.deleteAtPosition(i);
+                        bullets.erase(bullets.begin() + j);
+                        numberOfEnemies--;
+                        score += 10;
+                    }
                 }
 
                 if (player.fire && isEnemyOnLine(player, mouse, *enemy)){
@@ -373,12 +378,9 @@ int main(int argc, char* argv[]) {
             SDL_RenderPresent(renderer);
             SDL_RenderPresent(backgroundRenderer);
         }
-        //SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        //SDL_RenderClear(renderer);
         drawBackground(layer1, layer2, layer3);
         drawMenu(renderer, menuOption);
         SDL_RenderPresent(renderer);
-        //SDL_RenderPresent(backgroundRenderer);
     }
     close();
     return 0;

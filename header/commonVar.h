@@ -29,11 +29,20 @@ SDL_Event e;
 SDL_Surface* playerSurface = NULL;
 SDL_Texture* playerTexture = NULL;
 
+SDL_Surface* rocketSurface = NULL;
+SDL_Texture* rocketTexture = NULL;
+
+SDL_Surface* raySurface = NULL;
+SDL_Texture* rayTexture = NULL;
+
+SDL_Surface* destroySurface = NULL;
+SDL_Texture* destroyTexture = NULL;
+
 SDL_Surface* backgroundSurface[3] = {NULL};
 SDL_Texture* backgroundTexture[3] = {NULL};
 
 const float PI = 3.14159; 
-const int FPS = 120;
+const int FPS = 90;
 const int FRAME_DELAY = 1000 / FPS;
 const int MAX_VELOCITY = 2;
 const int MIN_VELOCITY = -2;
@@ -49,12 +58,13 @@ float velocity = 1;
 float crossFireFriction = 0.99f;
 float rad = PI / 2;
 float omega = 0.025;
+float sensitivity = 150;
 int menuOption = 0;
 int settingOption = 0;
 int length = 6;
 int volume = 10;
 int move = 1;
-float sensitivity = 150;
+int maxBullet = 4;
 bool run = true;
 bool startGame = false;
 bool startSetting = false;
@@ -71,5 +81,9 @@ const char* backgroundPath[] = {
     "data/image/BackGrounds/Condesed/Starry background  - Layer 02 - Stars.png",
     "data/image/BackGrounds/Condesed/Starry background  - Layer 03 - Stars.png"
 };
+
+const char* rocketPath = "data/image/Main Ship/Projectile/Main Ship - Rocket.png";
+const char* rayPath = "data/image/Main Ship/Projectile/Main Ship - Ray.png";
+const char* destroyPath = "data/image/Enemy/Basic/Destruction/Nairan - Fighter -  Destruction.png";
 
 #endif

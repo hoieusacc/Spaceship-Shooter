@@ -11,6 +11,17 @@ public:
 class Enemy : public BaseObject{
 public:
     float angle;
+    int maxHealth;
+    SDL_Rect dstRect;
+    SDL_Rect srcRect;
+
+    void destroyAnimation(SDL_Renderer* &renderer, SDL_Texture* &loadTexture){
+        dstRect = {static_cast<int>(x - size / 2), static_cast<int>(y - size / 2), static_cast<int>(size * 1.5), static_cast<int>(size * 1.5)};
+        for (int i = 0; i < 18 * 8; i++){
+            srcRect = {i / 8 * 64, 0, 64, 64};
+            SDL_RenderCopyEx(renderer, loadTexture, &srcRect, &dstRect, angle * 180 / PI, nullptr, SDL_FLIP_NONE);
+        }
+    }
 };
 
 class Player : public BaseObject{
@@ -18,18 +29,40 @@ public:
     float a, angle;
     bool moving, fire;
     int health = 4;
+    SDL_Rect raydstRect;
+    SDL_Rect raysrcRect;
+    SDL_Point point;
+
+    void castRay(SDL_Renderer* &renderer, SDL_Texture* &loadTexture){
+        for (int i = 0; i < 4 * 160; i++){
+            raydstRect = {static_cast<int>(x - 18 / 2), static_cast<int>(y - 38), 18, 38 * 2};
+            raysrcRect = {(i / 160) * 18, 0, 18, 38};
+            point = {static_cast<int>(x - 18 / 2), static_cast<int>(y - 38)};
+            SDL_RenderCopyEx(renderer, loadTexture, &raysrcRect, &raydstRect, angle * 180 / PI, &point, SDL_FLIP_NONE);
+        }
+    }
 };
 
 class Bullet{
 public:
-    float x, y, angle;
-    float size = 5;
+    float x, y;
+    float angle;
+    int size = 2;
+    int v = 5;
+    int currentFrame = 0;
+    SDL_Rect dstRect = {x - (size * 9) / 2, y - (size * 16) / 2, size * 9, size * 16};
+    SDL_Rect srcRect = {currentFrame * 9, 0, 9, 16};
 
     void move(float dx, float dy){
-        x += 2 * dx;
-        y += 2 * dy;
+        x += v * dx;
+        y += v * dy;
     }
 
+    void update(){
+        currentFrame = (currentFrame + 1) % 4;
+        dstRect = {static_cast<int>(x - (size * 9) / 2),static_cast<int>(y - (size * 16) / 2), size * 9, size * 16};
+        srcRect = {currentFrame * 9, 0, 9, 16};
+    }
 };
 
 class Mouse : public BaseObject{

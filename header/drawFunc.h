@@ -24,6 +24,19 @@ SDL_Rect dstBackgroundRect;
 const char* menuItems[] = {"Start" ,"Setting" ,"High Score" ,"Quit"};
 const char* settingItems[] = {"Music", "Sensitivity","Back"};
 
+void loadImage(SDL_Surface* &loadSurface, SDL_Texture* &loadTexture, const char* &path){
+    loadSurface = IMG_Load(path);
+    loadTexture = SDL_CreateTextureFromSurface(renderer, loadSurface);
+
+    SDL_FreeSurface(loadSurface);
+}
+
+void loadBackground(){
+    for (int i = 0; i < 3; i++){
+        loadImage(backgroundSurface[i], backgroundTexture[i], backgroundPath[i]);
+    }
+}
+
 void drawImage(SDL_Renderer* &renderer, const char* path, SDL_Rect dstRect, SDL_Rect srcRect, double angle) {
     SDL_Surface* loadedSurface = IMG_Load(path);
     texture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
@@ -32,8 +45,8 @@ void drawImage(SDL_Renderer* &renderer, const char* path, SDL_Rect dstRect, SDL_
     SDL_RenderCopyEx(renderer, texture, &srcRect, &dstRect, angle, nullptr, SDL_FLIP_NONE);
 }
 
-void drawImage2(SDL_Renderer* renderer, SDL_Texture* loadTexture, SDL_Rect dstRect, SDL_Rect srcRect) {
-    SDL_RenderCopyEx(renderer, loadTexture, &srcRect, &dstRect, 0, nullptr, SDL_FLIP_NONE);
+void drawImage2(SDL_Renderer* &renderer, SDL_Texture* &loadTexture, SDL_Rect &dstRect, SDL_Rect &srcRect, float angle) {
+    SDL_RenderCopyEx(renderer, loadTexture, &srcRect, &dstRect, angle, nullptr, SDL_FLIP_NONE);
 }
 
 
@@ -85,7 +98,7 @@ void drawMenu(SDL_Renderer* &backgroundRenderer, int currentOption) {
     }
 }
 
-void drawSetting(SDL_Renderer* &backgroundRenderer, int currentOption, int volume, int sensitivity) {
+void drawSetting(SDL_Renderer* &backgroundRenderer, int &currentOption, int &volume, int sensitivity) {
     settingFont = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 40);
     SDL_SetRenderDrawColor(backgroundRenderer, 0, 0, 0, 255);
     SDL_RenderClear(backgroundRenderer);
@@ -112,7 +125,7 @@ void drawSetting(SDL_Renderer* &backgroundRenderer, int currentOption, int volum
     }
 }
 
-void drawScore(SDL_Renderer* &renderer, int score){
+void drawScore(SDL_Renderer* &renderer, int &score){
     scoreFont = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 15);
     std::string scoreText = "Score: " + std::to_string(score);
     surface = TTF_RenderUTF8_Solid(scoreFont, scoreText.c_str(), white);
@@ -125,13 +138,13 @@ void drawScore(SDL_Renderer* &renderer, int score){
     SDL_RenderCopy(renderer, texture, nullptr, &scoreRect);
 }
 
-void drawLineToMouse(Player &player, SDL_Renderer* renderer, int mouseX, int mouseY){
-    SDL_RenderDrawLine(renderer, player.x , player.y , mouseX, mouseY);
+void drawLineToMouse(Player &player, SDL_Renderer* &renderer, Mouse& mouse){
+    SDL_RenderDrawLine(renderer, player.x , player.y , mouse.x, mouse.y);
     SDL_RenderPresent(renderer);
     SDL_Delay(10);
 }
 
-void drawCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius) {
+void drawCircle(SDL_Renderer* &renderer, int centerX, int centerY, int radius) {
     for (int y = -radius; y <= radius; y++) {
         for (int x = -radius; x <= radius; x++) {
             if ((x * x) + (y * y) <= (radius * radius)) {
@@ -160,7 +173,7 @@ void drawBackground(float layer1, float layer2, float layer3){
     dstBackgroundRect = {0, 0, 1080, 720};
 
     for (int i = 0; i < 3; i++){
-        drawImage2(renderer, backgroundTexture[i], dstBackgroundRect, srcBackgroundRect[i]);
+        drawImage2(renderer, backgroundTexture[i], dstBackgroundRect, srcBackgroundRect[i], 0);
     }
 }
 

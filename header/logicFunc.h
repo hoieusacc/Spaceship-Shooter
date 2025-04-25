@@ -62,14 +62,12 @@ void moveEnemyTowardsPlayer(Enemy& enemy, const Player& player, float speed) {
     directionX /= length;
     directionY /= length;
 
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderDrawLine(renderer, enemy.x, enemy.y, enemy.x + directionX * 40 , enemy.y + directionY * 40);
-
     enemy.x += directionX * speed;
     enemy.y += directionY * speed;
 }
 
-bool colideCheck(Enemy enemy, Player player){
+template <class object1>
+bool colideCheck(Enemy &enemy, object1 &player){
     float directionX = player.x - enemy.x;
     float directionY = player.y - enemy.y;
 
