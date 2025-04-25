@@ -11,6 +11,7 @@ public:
 class Enemy : public BaseObject{
 public:
     float angle;
+    int v;
     int maxHealth;
     SDL_Rect dstRect;
     SDL_Rect srcRect;
@@ -32,6 +33,31 @@ public:
     SDL_Rect raydstRect;
     SDL_Rect raysrcRect;
     SDL_Point point;
+
+    void move(float friction){
+        x += vx;
+        y += vy;
+
+        if (y > WINDOW_HEIGHT - size) {
+            y = WINDOW_HEIGHT - size;
+        }
+        if (x < size) {
+            x = size;
+        }
+        if (x > WINDOW_WIDTH - size) {
+            x = WINDOW_WIDTH - size;
+        }
+        if (y < size) {
+            y = size;
+        }
+
+        if (vx != 0 && !moving) {
+            vx *= friction;
+        }
+        if (vy != 0 && !moving) {
+            vy *= friction;
+        }
+    }
 
     void castRay(SDL_Renderer* &renderer, SDL_Texture* &loadTexture){
         for (int i = 0; i < 4 * 160; i++){
@@ -69,6 +95,31 @@ class Mouse : public BaseObject{
 public:
     bool moving;
     float size;
+    
+    void move(float friction){
+        x += vx;
+        y += vy;
+
+        if (y > WINDOW_HEIGHT - size) {
+            y = WINDOW_HEIGHT - size;
+        }
+        if (x < size) {
+            x = size;
+        }
+        if (x > WINDOW_WIDTH - size) {
+            x = WINDOW_WIDTH - size;
+        }
+        if (y < size) {
+            y = size;
+        }
+
+        if (vx != 0 && !moving) {
+            vx *= friction;
+        }
+        if (vy != 0 && !moving) {
+            vy *= friction;
+        }
+    }
 };
 
 struct Node{
@@ -124,6 +175,17 @@ public:
         }
 
         return temp->data;
+    }
+    
+    void deleteAllEnemy(){
+        Node* current = head;
+        current = current->next;
+        while (current != nullptr) {
+            Node* nextNode = current->next;
+            delete current->data;
+            delete current;
+            current = nextNode;
+        }
     }
 };
 

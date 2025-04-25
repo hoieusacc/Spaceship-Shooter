@@ -38,14 +38,40 @@ bool init(){
     return true;
 }
 
+void deleteTexture(){
+    SDL_DestroyTexture(texture);
+    SDL_DestroyTexture(playerTexture);
+    SDL_DestroyTexture(rocketTexture);
+    SDL_DestroyTexture(rayTexture);
+    SDL_DestroyTexture(destroyTexture);
+    for (int i = 0; i < 3; i++){
+        SDL_DestroyTexture(backgroundTexture[i]);
+    }
+}
+
 void close(){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyRenderer(backgroundRenderer);
     SDL_DestroyWindow(window);
+    deleteTexture();
     Mix_CloseAudio();
     Mix_Quit();
     TTF_Quit();
     SDL_Quit();
+}
+
+json openFile(const char* path){
+    std::ifstream file(path);
+    if (!file.is_open()){
+        std::cerr << "Error opening for reading" << std::endl;
+        return 1;
+    }
+
+    json output;
+    file >> output;
+    file.close();
+
+    return output;
 }
 
 int main(int argc, char* argv[]) {
@@ -56,6 +82,16 @@ int main(int argc, char* argv[]) {
     if (mainSong == nullptr) {
         return -1;
     }
+
+    json gameConfig = openFile(config);
+    
+    volume = gameConfig["volume"];
+    sensitivity = gameConfig["sensitivity"];
+    gameMode = gameConfig["gameMode"];
+    
+    json highScoreJson = openFile(scorePath);
+
+    highScore = highScoreJson["highScore"];
 
     Mix_PlayChannel(-1, mainSong, 1);
     Uint32 lastTime = SDL_GetTicks();
@@ -68,16 +104,11 @@ int main(int argc, char* argv[]) {
     Player player = {400, 300, 0, 0, 48, 200, 0, 0, 0};
     Mouse mouse = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 0, 0, length + 8};
     int highScore = 0;
-    int score = 0;
     LinkedList enemies;
-    Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0};
+    Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0, gameMode * 10};
     enemies.insertAtEnd(temp);
     int numberOfEnemies = 1;
-
     int create = 4;
-    for (int i = 0; i < create; i++){
-        createEnemies(enemies, numberOfEnemies, temp->size);
-    }
     
     SDL_Rect srcPlayerRect = {0, 0, 32, 32};
     SDL_Rect dstPlayerRect;
@@ -106,6 +137,9 @@ int main(int argc, char* argv[]) {
                             std::cout << "Game Start!" << std::endl;
                             startGame = true;
                             run = false;
+                            for (int i = 0; i < create; i++){
+                                createEnemies(enemies, numberOfEnemies, temp->size, gameMode * 10);
+                            }
                         }
                         else if (menuOption == 1){ 
                             std::cout << "Game Setting!" << std::endl;
@@ -194,8 +228,8 @@ int main(int argc, char* argv[]) {
                             mouse.moving = true;
                             break;
                         case SDLK_q:
-                            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                            //drawLineToMouse(player, renderer, mouse);
+                            //SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                            drawLineToMouse(player, renderer, mouse);
                             player.castRay(renderer, rayTexture);
                             player.fire = true;
                             break;
@@ -232,8 +266,10 @@ int main(int argc, char* argv[]) {
             drawBackground(layer1, layer2, layer3);
             
             getPlayerAngle(player, mouse);
-            updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction, enemies, numberOfEnemies);
-            updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
+            //updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction, enemies, numberOfEnemies);
+            player.move(friction);
+            //updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
+            mouse.move(crossFireFriction);
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
             layer1 = (player.x / 1080) * 576 * 2;
@@ -256,7 +292,8 @@ int main(int argc, char* argv[]) {
             for (int i = 2; i <= numberOfEnemies; i++) {
                 enemy = enemies.takeDataAtPosition(i);
                 if (move){
-                    moveEnemyTowardsPlayer(*enemy, player, velocity);
+                    moveEnemyTowardsPlayer(*enemy, player, velocity + 0.2 * gameMode );
+                    //enemy->move(player);
                 }
                 getEnemyAngle(*enemy, player);
             
@@ -293,23 +330,28 @@ int main(int argc, char* argv[]) {
             if (numberOfEnemies == 1){
                 create++;
                 for (int i = 0; i < create; i++){
-                    createEnemies(enemies, numberOfEnemies, temp->size);
+                    createEnemies(enemies, numberOfEnemies, temp->size, gameMode * 10);
                 }
             }
             if (!player.health){
+                Player player = {400, 300, 0, 0, 48, 200, 0, 0, 0};
+                player.health = 4;
                 startGame = false;
                 run = true;
-                LinkedList enemies;
-                Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 32, 0};
+                Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0, gameMode * 10};
                 enemies.insertAtEnd(temp);
                 int numberOfEnemies = 1;
 
                 int create = 4;
                 for (int i = 0; i < create; i++){
-                    createEnemies(enemies, numberOfEnemies, temp->size);
+                    createEnemies(enemies, numberOfEnemies, temp->size, gameMode * 10);
                 }
                 if (score > highScore){
                     highScore = score;
+                    highScoreJson["highScore"] = highScore;
+                    std::ofstream file(scorePath);
+                    file << highScoreJson.dump(4);
+                    file.close();
                 }
             }
         
@@ -332,14 +374,21 @@ int main(int argc, char* argv[]) {
                             }
                             break;
                         case SDLK_DOWN:
-                            if (settingOption < 2){
+                            if (settingOption < 3){
                                 settingOption++;
                             }
                             break;
                         case SDLK_RETURN:
-                            if (settingOption == 2){
+                            if (settingOption == 3){
                                 run = true;
                                 startSetting = false;
+                                gameConfig["volume"] = volume;
+                                gameConfig["sensitivity"] = sensitivity;
+                                gameConfig["gameMode"] = gameMode;
+                                std::ofstream file("data/config/gameConfig.json");
+                                
+                                file << gameConfig.dump(4);
+                                file.close();
                             }
                             break;
                         case SDLK_RIGHT:
@@ -352,6 +401,12 @@ int main(int argc, char* argv[]) {
                             else if (settingOption == 1){
                                 if (sensitivity < 200){
                                     sensitivity +=  10;
+                                }
+                            }
+                            else if (settingOption == 2){
+                                if (gameMode < 3){
+                                    gameMode++;
+                                    temp->v = gameMode * 10;
                                 }
                             }
                             break;
@@ -367,6 +422,12 @@ int main(int argc, char* argv[]) {
                                     sensitivity -= 10;
                                 }
                             }
+                            else if (settingOption == 2){
+                                if (gameMode > 1){
+                                    gameMode--;
+                                    temp->v = gameMode * 10;
+                                }
+                            }
                             break;
                         default:
                             break;
@@ -374,9 +435,11 @@ int main(int argc, char* argv[]) {
                 }
             }
             drawBackground(layer1, layer2, layer3);
-            drawSetting(renderer, settingOption, volume, sensitivity);
+            drawSetting(renderer, settingOption, volume, sensitivity, gameMode);
             SDL_RenderPresent(renderer);
             SDL_RenderPresent(backgroundRenderer);
+            
+            
         }
         drawBackground(layer1, layer2, layer3);
         drawMenu(renderer, menuOption);

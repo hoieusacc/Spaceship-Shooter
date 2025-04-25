@@ -14,6 +14,10 @@
 #include <string>
 #include <vector>
 #include <windows.h>
+#include <fstream>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 const int WINDOW_WIDTH = 1080;
 const int WINDOW_HEIGHT = 720;
@@ -41,6 +45,9 @@ SDL_Texture* destroyTexture = NULL;
 SDL_Surface* backgroundSurface[3] = {NULL};
 SDL_Texture* backgroundTexture[3] = {NULL};
 
+SDL_Surface* modeSurface = NULL;
+SDL_Texture* modeTexture = NULL;
+
 const float PI = 3.14159; 
 const int FPS = 90;
 const int FRAME_DELAY = 1000 / FPS;
@@ -59,12 +66,17 @@ float crossFireFriction = 0.99f;
 float rad = PI / 2;
 float omega = 0.025;
 float sensitivity = 150;
+
 int menuOption = 0;
 int settingOption = 0;
 int length = 6;
 int volume = 10;
 int move = 1;
 int maxBullet = 4;
+int score = 0;
+int gameMode = 1;
+int highScore = 0;
+
 bool run = true;
 bool startGame = false;
 bool startSetting = false;
@@ -85,5 +97,8 @@ const char* backgroundPath[] = {
 const char* rocketPath = "data/image/Main Ship/Projectile/Main Ship - Rocket.png";
 const char* rayPath = "data/image/Main Ship/Projectile/Main Ship - Ray.png";
 const char* destroyPath = "data/image/Enemy/Basic/Destruction/Nairan - Fighter -  Destruction.png";
+
+const char* config = "data/config/gameConfig.json";
+const char* scorePath = "data/highScore.json";
 
 #endif

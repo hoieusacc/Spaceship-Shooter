@@ -3,56 +3,6 @@
 #include "commonVar.h"
 #include "baseObject.h"
 
-void updatePlayerPosition(Player& player, int windowWidth, int windowHeight, float friction, LinkedList& enemies, int numberOfEnemies) {
-    player.x += player.vx;
-    player.y += player.vy;
-
-    if (player.y > windowHeight - player.size) {
-        player.y = windowHeight - player.size;
-    }
-    if (player.x < player.size) {
-        player.x = player.size;
-    }
-    if (player.x > windowWidth - player.size) {
-        player.x = windowWidth - player.size;
-    }
-    if (player.y < player.size) {
-        player.y = player.size;
-    }
-
-    if (player.vx != 0 && !player.moving) {
-        player.vx *= friction;
-    }
-    if (player.vy != 0 && !player.moving) {
-        player.vy *= friction;
-    }
-}
-
-void updateMousePosition(Mouse& mouse, int windowWidth, int windowHeight, float friction) {
-    mouse.x += mouse.vx;
-    mouse.y += mouse.vy;
-
-    if (mouse.y > windowHeight - mouse.size) {
-        mouse.y = windowHeight - mouse.size;
-    }
-    if (mouse.x < mouse.size) {
-        mouse.x = mouse.size;
-    }
-    if (mouse.x > windowWidth - mouse.size) {
-        mouse.x = windowWidth - mouse.size;
-    }
-    if (mouse.y < mouse.size) {
-        mouse.y = mouse.size;
-    }
-
-    if (mouse.vx != 0 && !mouse.moving) {
-        mouse.vx *= friction;
-    }
-    if (mouse.vy != 0 && !mouse.moving) {
-        mouse.vy *= friction;
-    }
-}
-
 void moveEnemyTowardsPlayer(Enemy& enemy, const Player& player, float speed) {
     float directionX = player.x - enemy.x;
     float directionY = player.y - enemy.y;
@@ -85,7 +35,7 @@ float getRandomNumber(int start, int end){
     return (float)distr(gen);
 }
 
-void createEnemies(LinkedList &enemies, int &numberOfEnemies, float size){
+void createEnemies(LinkedList &enemies, int &numberOfEnemies, float size, int v){
     int choice = getRandomNumber(1, 4);
     Enemy* temp;
     switch (choice){

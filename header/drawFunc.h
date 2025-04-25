@@ -17,12 +17,14 @@ TTF_Font* scoreFont = NULL;
 
 SDL_Rect menuRect;
 SDL_Rect settingRect;
+SDL_Rect settingRect2;
 SDL_Rect scoreRect;
 SDL_Rect srcBackgroundRect[3];
 SDL_Rect dstBackgroundRect;
 
 const char* menuItems[] = {"Start" ,"Setting" ,"High Score" ,"Quit"};
-const char* settingItems[] = {"Music", "Sensitivity","Back"};
+const char* settingItems[] = {"Music", "Sensitivity", "Game Mode","Back"};
+const char* mode[] = {"Easy", "Normal", "Hard"};
 
 void loadImage(SDL_Surface* &loadSurface, SDL_Texture* &loadTexture, const char* &path){
     loadSurface = IMG_Load(path);
@@ -98,13 +100,12 @@ void drawMenu(SDL_Renderer* &backgroundRenderer, int currentOption) {
     }
 }
 
-void drawSetting(SDL_Renderer* &backgroundRenderer, int &currentOption, int &volume, int sensitivity) {
+void drawSetting(SDL_Renderer* &backgroundRenderer, int &currentOption, int &volume, int sensitivity, int gameMode) {
     settingFont = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 40);
     SDL_SetRenderDrawColor(backgroundRenderer, 0, 0, 0, 255);
     SDL_RenderClear(backgroundRenderer);
 
-
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 4; ++i) {
         surface = TTF_RenderUTF8_Solid(settingFont, settingItems[i], (i == currentOption) ? yellow : white);
         texture = SDL_CreateTextureFromSurface(backgroundRenderer, surface);
         textWidth = surface->w;
@@ -118,10 +119,21 @@ void drawSetting(SDL_Renderer* &backgroundRenderer, int &currentOption, int &vol
             settingRect = {WINDOW_WIDTH / 2 - textWidth - 20 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
             drawHealthBar(WINDOW_WIDTH / 2 + 10, WINDOW_WIDTH / 2 + 70, WINDOW_HEIGHT / 2 - 45 + (i - 1) * (textHeight), textHeight / 2, sensitivity / 8);
         }
+        else if (i == 2 && currentOption == i){
+            settingRect = {WINDOW_WIDTH / 2 - textWidth - 20 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
+            modeSurface = TTF_RenderUTF8_Solid(settingFont, mode[gameMode - 1], yellow);
+            modeTexture = SDL_CreateTextureFromSurface(backgroundRenderer, modeSurface);
+            SDL_FreeSurface(modeSurface);
+            settingRect2 = {WINDOW_WIDTH / 2 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
+        }
         else{
             settingRect = {(WINDOW_WIDTH - textWidth) / 2 ,WINDOW_HEIGHT / 2 - 50 + (i - 1) * (textHeight), textWidth, textHeight };
         }
+        if (currentOption != 2){
+            modeTexture = NULL;
+        }
         SDL_RenderCopy(backgroundRenderer, texture, nullptr, &settingRect);
+        SDL_RenderCopy(backgroundRenderer, modeTexture, nullptr, &settingRect2);
     }
 }
 
