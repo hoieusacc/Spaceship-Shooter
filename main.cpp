@@ -134,15 +134,17 @@ int main(int argc, char* argv[]) {
                         break;
                     case SDLK_RETURN:
                         if (menuOption == 0){
-                            std::cout << "Game Start!" << std::endl;
                             startGame = true;
-                            run = false;
+                            //run = false;
+                            enemies.deleteAllEnemy();
+                            Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0, gameMode * 10};
+                            enemies.insertAtEnd(temp);
+                            int numberOfEnemies = 1;
                             for (int i = 0; i < create; i++){
                                 createEnemies(enemies, numberOfEnemies, temp->size, gameMode * 10);
                             }
                         }
-                        else if (menuOption == 1){ 
-                            std::cout << "Game Setting!" << std::endl;
+                        else if (menuOption == 1){
                             startSetting = true;
                             run = false;
                         }
@@ -197,7 +199,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_UP:
                             mouse.vy = 0;
-                            mouse.vy -= 2 * sensitivity * player.a * deltaTime;
+                            mouse.vy -= 5 * sensitivity * player.a * deltaTime;
                             if (mouse.vy < MIN_VELOCITY){
                                 mouse.vy = MIN_VELOCITY;
                             }
@@ -205,7 +207,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_DOWN:
                             mouse.vy = 0;
-                            mouse.vy += 2 * sensitivity * player.a * deltaTime;
+                            mouse.vy += 5 * sensitivity * player.a * deltaTime;
                             if (mouse.vy > MAX_VELOCITY){
                                 mouse.vy = MAX_VELOCITY;
                             }
@@ -213,7 +215,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_RIGHT:
                             mouse.vx = 0;
-                            mouse.vx += 2 * sensitivity * player.a * deltaTime;
+                            mouse.vx += 5 * sensitivity * player.a * deltaTime;
                             if (mouse.vx > MAX_VELOCITY){
                                 mouse.vx = MAX_VELOCITY;
                             }
@@ -221,14 +223,13 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_LEFT:
                             mouse.vx = 0;
-                            mouse.vx -= 2 * sensitivity * player.a * deltaTime;
+                            mouse.vx -= 5 * sensitivity * player.a * deltaTime;
                             if (mouse.vx < MIN_VELOCITY){
                                 mouse.vx = MIN_VELOCITY;
                             }
                             mouse.moving = true;
                             break;
                         case SDLK_q:
-                            //SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                             drawLineToMouse(player, renderer, mouse);
                             player.castRay(renderer, rayTexture);
                             player.fire = true;
@@ -266,9 +267,7 @@ int main(int argc, char* argv[]) {
             drawBackground(layer1, layer2, layer3);
             
             getPlayerAngle(player, mouse);
-            //updatePlayerPosition(player, WINDOW_WIDTH, WINDOW_HEIGHT, friction, enemies, numberOfEnemies);
             player.move(friction);
-            //updateMousePosition(mouse, WINDOW_WIDTH, WINDOW_HEIGHT, crossFireFriction);
             mouse.move(crossFireFriction);
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
@@ -293,7 +292,6 @@ int main(int argc, char* argv[]) {
                 enemy = enemies.takeDataAtPosition(i);
                 if (move){
                     moveEnemyTowardsPlayer(*enemy, player, velocity + 0.2 * gameMode );
-                    //enemy->move(player);
                 }
                 getEnemyAngle(*enemy, player);
             
@@ -321,7 +319,6 @@ int main(int argc, char* argv[]) {
                     score += 10;
                     enemies.deleteAtPosition(i);
                     numberOfEnemies--;
-                    
                 }
             }
 
@@ -333,19 +330,20 @@ int main(int argc, char* argv[]) {
                     createEnemies(enemies, numberOfEnemies, temp->size, gameMode * 10);
                 }
             }
-            if (!player.health){
+            if (player.health <= 0){
                 Player player = {400, 300, 0, 0, 48, 200, 0, 0, 0};
                 player.health = 4;
                 startGame = false;
                 run = true;
-                Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0, gameMode * 10};
-                enemies.insertAtEnd(temp);
-                int numberOfEnemies = 1;
+                //Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0, gameMode * 10};
+                //enemies.insertAtEnd(temp);
+                //int numberOfEnemies = 1;
 
-                int create = 4;
-                for (int i = 0; i < create; i++){
-                    createEnemies(enemies, numberOfEnemies, temp->size, gameMode * 10);
-                }
+                //int create = 4;
+                //for (int i = 0; i < create; i++){
+                //    createEnemies(enemies, numberOfEnemies, temp->size, gameMode * 10);
+                //}
+
                 if (score > highScore){
                     highScore = score;
                     highScoreJson["highScore"] = highScore;
