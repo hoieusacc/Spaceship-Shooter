@@ -11,7 +11,6 @@ bool init(){
         std::cerr << "Cannot create renderer!" << std::endl;
         return false;
     }
-    backgroundRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return false;
@@ -22,16 +21,16 @@ bool init(){
         return false;
     }
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+        std::cerr << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
         return -1;
     }
     
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-        printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+        std::cerr << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
         return -1;
     }
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
+        std::cerr << "SDL_mixer could not initialize! SDL_mixer Error:" << Mix_GetError() << std::endl;
         return -1;
     }
     
@@ -51,7 +50,6 @@ void deleteTexture(){
 
 void close(){
     SDL_DestroyRenderer(renderer);
-    SDL_DestroyRenderer(backgroundRenderer);
     SDL_DestroyWindow(window);
     deleteTexture();
     Mix_CloseAudio();
@@ -423,7 +421,6 @@ int main(int argc, char* argv[]) {
             drawBackground(layer1, layer2, layer3);
             drawSetting(renderer, settingOption, volume, sensitivity, gameMode);
             SDL_RenderPresent(renderer);
-            SDL_RenderPresent(backgroundRenderer);
         }
         while (startHighScore){
             while (SDL_PollEvent(&e) != 0) {
