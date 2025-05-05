@@ -29,7 +29,7 @@ class Player : public BaseObject{
 public:
     float a, angle;
     bool moving, fire;
-    int health = 4;
+    int health;
     SDL_Rect raydstRect;
     SDL_Rect raysrcRect;
     SDL_Point point;
@@ -177,15 +177,11 @@ public:
         return temp->data;
     }
     
-    void deleteAllEnemy(){
-        Node* current = head;
-        current = current->next;
-        while (current != nullptr) {
-            Node* nextNode = current->next;
-            delete current->data;
-            delete current;
-            current = nextNode;
+    void deleteAllEnemy(int numberOfEnemies){
+        for (int i = numberOfEnemies; i > 1; i--){
+            deleteAtPosition(i);
         }
+        head->next = NULL;
     }
 };
 

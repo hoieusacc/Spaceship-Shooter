@@ -13,11 +13,13 @@ SDL_Color yellow = { 255, 255, 0 };
 
 TTF_Font* menuFont = NULL;
 TTF_Font* settingFont = NULL;
+TTF_Font* highScoreFont = NULL;
 TTF_Font* scoreFont = NULL;
 
 SDL_Rect menuRect;
 SDL_Rect settingRect;
 SDL_Rect settingRect2;
+SDL_Rect highScoreRect;
 SDL_Rect scoreRect;
 SDL_Rect srcBackgroundRect[3];
 SDL_Rect dstBackgroundRect;
@@ -102,8 +104,6 @@ void drawMenu(SDL_Renderer* &backgroundRenderer, int currentOption) {
 
 void drawSetting(SDL_Renderer* &backgroundRenderer, int &currentOption, int &volume, int sensitivity, int gameMode) {
     settingFont = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 40);
-    SDL_SetRenderDrawColor(backgroundRenderer, 0, 0, 0, 255);
-    SDL_RenderClear(backgroundRenderer);
 
     for (int i = 0; i < 4; ++i) {
         surface = TTF_RenderUTF8_Solid(settingFont, settingItems[i], (i == currentOption) ? yellow : white);
@@ -135,6 +135,20 @@ void drawSetting(SDL_Renderer* &backgroundRenderer, int &currentOption, int &vol
         SDL_RenderCopy(backgroundRenderer, texture, nullptr, &settingRect);
         SDL_RenderCopy(backgroundRenderer, modeTexture, nullptr, &settingRect2);
     }
+}
+
+void drawHighScore(SDL_Renderer* &renderer, int &highScore){
+    highScoreFont = TTF_OpenFont("data/font/Vermin Vibes 1989.ttf", 50);
+    std::string highScoreText = "High Score: " + std::to_string(highScore);
+    surface = TTF_RenderUTF8_Solid(highScoreFont, highScoreText.c_str(),yellow);
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    textWidth = surface->w;
+    textHeight = surface->h;
+    SDL_FreeSurface(surface);
+
+    highScoreRect = {(WINDOW_WIDTH - textWidth) / 2 , (WINDOW_HEIGHT - textHeight) / 2, textWidth, textHeight };
+    SDL_RenderCopy(renderer, texture, nullptr, &highScoreRect);
 }
 
 void drawScore(SDL_Renderer* &renderer, int &score){

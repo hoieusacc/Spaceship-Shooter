@@ -80,6 +80,8 @@ int highScore = 0;
 bool run = true;
 bool startGame = false;
 bool startSetting = false;
+bool startHighScore = false;
+bool play = true;
 
 const char* state[] = {
     "data/image/Main Ship/Main Ship - Base - Very damaged.png",

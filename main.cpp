@@ -101,9 +101,9 @@ int main(int argc, char* argv[]) {
     loadImage(rocketSurface, rocketTexture, rocketPath);
     loadImage(destroySurface, destroyTexture, destroyPath);
     loadImage(raySurface, rayTexture, rayPath);
-    Player player = {400, 300, 0, 0, 48, 200, 0, 0, 0};
+    Player player = {400, 300, 0, 0, 48, 200, 0, 0, 0, 4};
     Mouse mouse = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0, 0, 0, length + 8};
-    int highScore = 0;
+
     LinkedList enemies;
     Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0, gameMode * 10};
     enemies.insertAtEnd(temp);
@@ -113,12 +113,12 @@ int main(int argc, char* argv[]) {
     SDL_Rect srcPlayerRect = {0, 0, 32, 32};
     SDL_Rect dstPlayerRect;
     SDL_Rect dstEnemyRect;
+
     std::vector<Bullet> bullets;
+    Enemy* enemy;
     Mix_Volume(-1, volume * 128 / 100);
 
-    Enemy* enemy;
     while (run){
-
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
@@ -134,21 +134,19 @@ int main(int argc, char* argv[]) {
                         break;
                     case SDLK_RETURN:
                         if (menuOption == 0){
+                            player.x = 400;
+                            player.y = 300;
+                            player.health = 4;
+                            enemies.deleteAllEnemy(numberOfEnemies);
+                            numberOfEnemies = 1;
+                            create = 4;
                             startGame = true;
-                            //run = false;
-                            enemies.deleteAllEnemy();
-                            Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0, gameMode * 10};
-                            enemies.insertAtEnd(temp);
-                            int numberOfEnemies = 1;
-                            for (int i = 0; i < create; i++){
-                                createEnemies(enemies, numberOfEnemies, temp->size, gameMode * 10);
-                            }
                         }
                         else if (menuOption == 1){
                             startSetting = true;
                             run = false;
                         }
-                        else if (menuOption == 2) std::cout << "High Score: " << highScore << std::endl;
+                        else if (menuOption == 2) startHighScore = true;
                         else run = false;
                         break;
                     default:
@@ -291,7 +289,7 @@ int main(int argc, char* argv[]) {
             for (int i = 2; i <= numberOfEnemies; i++) {
                 enemy = enemies.takeDataAtPosition(i);
                 if (move){
-                    moveEnemyTowardsPlayer(*enemy, player, velocity + 0.2 * gameMode );
+                    moveEnemyTowardsPlayer(*enemy, player, velocity + 0.5 * gameMode );
                 }
                 getEnemyAngle(*enemy, player);
             
@@ -331,21 +329,11 @@ int main(int argc, char* argv[]) {
                 }
             }
             if (player.health <= 0){
-                Player player = {400, 300, 0, 0, 48, 200, 0, 0, 0};
-                player.health = 4;
                 startGame = false;
-                run = true;
-                //Enemy* temp = new Enemy{WINDOW_WIDTH - 1000, WINDOW_HEIGHT - 1000, 0, 0, 48, 0, gameMode * 10};
-                //enemies.insertAtEnd(temp);
-                //int numberOfEnemies = 1;
-
-                //int create = 4;
-                //for (int i = 0; i < create; i++){
-                //    createEnemies(enemies, numberOfEnemies, temp->size, gameMode * 10);
-                //}
 
                 if (score > highScore){
                     highScore = score;
+                    score = 0;
                     highScoreJson["highScore"] = highScore;
                     std::ofstream file(scorePath);
                     file << highScoreJson.dump(4);
@@ -436,8 +424,17 @@ int main(int argc, char* argv[]) {
             drawSetting(renderer, settingOption, volume, sensitivity, gameMode);
             SDL_RenderPresent(renderer);
             SDL_RenderPresent(backgroundRenderer);
-            
-            
+        }
+        while (startHighScore){
+            while (SDL_PollEvent(&e) != 0) {
+                if (e.type == SDL_KEYDOWN){
+                    if (e.key.keysym.sym == SDLK_ESCAPE) startHighScore = false;
+                }
+            }
+            drawBackground(layer1, layer2, layer3);
+            drawHighScore(renderer, highScore);
+            SDL_RenderPresent(renderer);
+
         }
         drawBackground(layer1, layer2, layer3);
         drawMenu(renderer, menuOption);
