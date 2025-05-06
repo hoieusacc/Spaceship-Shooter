@@ -234,8 +234,6 @@ int main(int argc, char* argv[]) {
                             if (player.currentRayCast - player.lastRayCast > 0){
                                 Mix_PlayChannel(-1, rayCastSound, 0); 
                                 drawLineToMouse(player, renderer, mouse);
-                                //drawRay(renderer, player, mouse);
-                                //player.castRay(renderer, rayTexture);
                                 player.fire = true;
                                 player.lastRayCast = player.currentRayCast;
                             }
