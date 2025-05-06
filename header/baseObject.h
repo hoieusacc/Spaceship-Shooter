@@ -33,6 +33,9 @@ public:
     SDL_Rect raydstRect;
     SDL_Rect raysrcRect;
     SDL_Point point;
+    Uint32 lastRayCast;
+    Uint32 currentRayCast = 0;
+    int rayRadius = 15;
 
     void move(float friction){
         x += vx;
@@ -63,8 +66,8 @@ public:
         for (int i = 0; i < 4 * 160; i++){
             raydstRect = {static_cast<int>(x - 18 / 2), static_cast<int>(y - 38), 18, 38 * 2};
             raysrcRect = {(i / 160) * 18, 0, 18, 38};
-            //point = {static_cast<int>(x - 18 / 2), static_cast<int>(y - 38)};
-            SDL_RenderCopyEx(renderer, loadTexture, &raysrcRect, &raydstRect, angle * 180 / PI, NULL, SDL_FLIP_NONE);
+            point = {static_cast<int>(x - 18 / 2), static_cast<int>(y - 38)};
+            SDL_RenderCopyEx(renderer, loadTexture, &raysrcRect, &raydstRect, angle * 180 / PI, &point, SDL_FLIP_NONE);
         }
     }
 };

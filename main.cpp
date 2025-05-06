@@ -77,7 +77,11 @@ int main(int argc, char* argv[]) {
         std::cerr << "Cannot initialize SDL!" << std::endl;
     }
     Mix_Chunk* mainSong = Mix_LoadWAV("data/music/track 01/v1.0 full song.wav");
-    if (mainSong == nullptr) {
+    Mix_Chunk* fireSound = Mix_LoadWAV("data/music/sound_effect/laser-gun.wav");
+    Mix_Chunk* explosionSound = Mix_LoadWAV("data/music/sound_effect/explosion.wav");
+    Mix_Chunk* rayCastSound = Mix_LoadWAV("data/music/sound_effect/plasma-gun-fire.wav");
+    
+    if (mainSong == nullptr || fireSound == nullptr || explosionSound == nullptr || rayCastSound == nullptr) {
         return -1;
     }
 
@@ -195,7 +199,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_UP:
                             mouse.vy = 0;
-                            mouse.vy -= 5 * sensitivity * player.a * deltaTime;
+                            mouse.vy -= 20 * sensitivity * player.a * deltaTime;
                             if (mouse.vy < MIN_VELOCITY){
                                 mouse.vy = MIN_VELOCITY;
                             }
@@ -203,7 +207,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_DOWN:
                             mouse.vy = 0;
-                            mouse.vy += 5 * sensitivity * player.a * deltaTime;
+                            mouse.vy += 20 * sensitivity * player.a * deltaTime;
                             if (mouse.vy > MAX_VELOCITY){
                                 mouse.vy = MAX_VELOCITY;
                             }
@@ -211,7 +215,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_RIGHT:
                             mouse.vx = 0;
-                            mouse.vx += 5 * sensitivity * player.a * deltaTime;
+                            mouse.vx += 20 * sensitivity * player.a * deltaTime;
                             if (mouse.vx > MAX_VELOCITY){
                                 mouse.vx = MAX_VELOCITY;
                             }
@@ -219,19 +223,26 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_LEFT:
                             mouse.vx = 0;
-                            mouse.vx -= 5 * sensitivity * player.a * deltaTime;
+                            mouse.vx -= 20 * sensitivity * player.a * deltaTime;
                             if (mouse.vx < MIN_VELOCITY){
                                 mouse.vx = MIN_VELOCITY;
                             }
                             mouse.moving = true;
                             break;
                         case SDLK_q:
-                            drawLineToMouse(player, renderer, mouse);
-                            player.castRay(renderer, rayTexture);
-                            player.fire = true;
+                            player.currentRayCast = SDL_GetTicks();
+                            if (player.currentRayCast - player.lastRayCast > 0){
+                                Mix_PlayChannel(-1, rayCastSound, 0); 
+                                drawLineToMouse(player, renderer, mouse);
+                                //drawRay(renderer, player, mouse);
+                                //player.castRay(renderer, rayTexture);
+                                player.fire = true;
+                                player.lastRayCast = player.currentRayCast;
+                            }
                             break;
                         case SDLK_e:{
                             if (bullets.size() < maxBullet){
+                                Mix_PlayChannel(-1, fireSound, 0); 
                                 Bullet newBullet = {player.x, player.y, player.angle - PI / 2};
                                 bullets.push_back(newBullet);
                             }
@@ -296,6 +307,8 @@ int main(int argc, char* argv[]) {
                 drawImage(renderer, "data/image/Enemy/Basic/Nairan - Fighter - Base.png", dstEnemyRect, srcPlayerRect, enemy->angle * 180 / PI);
             
                 if (colideCheck(*enemy, player)) {
+                    enemy->destroyAnimation(renderer, destroyTexture);
+                    Mix_PlayChannel(-1, explosionSound, 0); 
                     enemies.deleteAtPosition(i);
                     numberOfEnemies--;
                     player.health--;
@@ -303,6 +316,7 @@ int main(int argc, char* argv[]) {
 
                 for (int j = 0; j < bullets.size(); j++){
                     if (colideCheck(*enemy, bullets[j])){
+                        Mix_PlayChannel(-1, explosionSound, 0); 
                         enemy->destroyAnimation(renderer, destroyTexture);
                         enemies.deleteAtPosition(i);
                         bullets.erase(bullets.begin() + j);
@@ -321,6 +335,9 @@ int main(int argc, char* argv[]) {
             drawHealthBar(WINDOW_WIDTH - 320, WINDOW_WIDTH - 20, 20, 20, player.health);
 
             if (numberOfEnemies == 1){
+                if (player.health < 4){
+                    player.health++;
+                }
                 create++;
                 for (int i = 0; i < create; i++){
                     createEnemies(enemies, numberOfEnemies, temp->size, gameMode * 10);
@@ -437,6 +454,10 @@ int main(int argc, char* argv[]) {
         drawMenu(renderer, menuOption);
         SDL_RenderPresent(renderer);
     }
+    Mix_FreeChunk(mainSong);
+    Mix_FreeChunk(fireSound);
+    Mix_FreeChunk(explosionSound);
+    Mix_FreeChunk(rayCastSound);
     close();
     return 0;
 }
