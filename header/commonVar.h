@@ -53,9 +53,6 @@ const int FPS = 90;
 const int FRAME_DELAY = 1000 / FPS;
 const int MAX_VELOCITY = 2;
 const int MIN_VELOCITY = -2;
-const int COLOR_KEY_R = 167;
-const int COLOR_KEY_G = 175;
-const int COLOR_KEY_B = 180;
 
 float layer1 = 0;
 float layer2 = 0;
