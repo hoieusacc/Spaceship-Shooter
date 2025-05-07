@@ -34,7 +34,7 @@ public:
     SDL_Rect raysrcRect;
     SDL_Point point;
     Uint32 lastRayCast;
-    Uint32 currentRayCast = 0;
+    Uint32 currentRayCast = -5000;
     int rayRadius = 15;
 
     void move(float friction){

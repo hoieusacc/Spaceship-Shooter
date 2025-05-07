@@ -231,7 +231,7 @@ int main(int argc, char* argv[]) {
                             break;
                         case SDLK_q:
                             player.currentRayCast = SDL_GetTicks();
-                            if (player.currentRayCast - player.lastRayCast > 0){
+                            if (player.currentRayCast - player.lastRayCast > 5000){
                                 Mix_PlayChannel(-1, rayCastSound, 0); 
                                 drawLineToMouse(player, renderer, mouse);
                                 player.fire = true;
