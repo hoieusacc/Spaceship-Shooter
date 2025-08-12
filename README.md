@@ -4,7 +4,6 @@ _Ignite Adventure, Conquer the Cosmos with Precision_
 
 ![Last Commit](https://img.shields.io/github/last-commit/hoieusacc/Spaceship-Shooter?style=flat-square)
 ![C++](https://img.shields.io/badge/C%2B%2B-0A0AFF?style=flat-square&logo=cplusplus&logoColor=white)
-![License](https://img.shields.io/github/license/hoieusacc/Spaceship-Shooter?style=flat-square)
 
 _Built with the tools and technologies:_
 
@@ -58,3 +57,5 @@ Build Spaceship-Shooter from the source and install dependencies:
 2. **Navigate to the project directory:**
    ```bash
    cd spaceship-shooter
+[⬅ Return](#Spaceship-Shooter)
+
