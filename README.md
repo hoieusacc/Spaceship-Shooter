@@ -19,7 +19,6 @@ _Built with the tools and technologies:_
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Usage](#usage)
-  - [Testing](#testing)
 
 ---
 
@@ -57,5 +56,10 @@ Build Spaceship-Shooter from the source and install dependencies:
 2. **Navigate to the project directory:**
    ```bash
    cd spaceship-shooter
+## Usage:
+Run the file:
+```bash
+main.exe
+```
 [⬅ Return](#Spaceship-Shooter)
 
