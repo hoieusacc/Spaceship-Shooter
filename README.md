@@ -56,5 +56,5 @@ Build Spaceship-Shooter from the source and install dependencies:
    ```bash
    git clone https://github.com/your-username/spaceship-shooter.git
 2. **Navigate to the project directory:**
-   ``bash
+   ```bash
    cd spaceship-shooter
